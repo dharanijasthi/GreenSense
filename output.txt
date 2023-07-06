@@ -57,3 +57,29 @@ Number of tokens for prompt: 45
     "total_tokens": 112
   }
 }
+
+# Updated chat
+Number of tokens for prompt: 45
+Chat response: 
+
+{
+  "id": "chatcmpl-7Z9DskZknwNwRWLSJ7ELIwuMn8Sg5",
+  "object": "chat.completion",
+  "created": 1688611288,
+  "model": "gpt-3.5-turbo-0613",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "# Optimised Code:\n\nimport multiprocessing\n\ndef create_large_list():\n    large_list = list(range(1000000))\n    return large_list\n\ndef process_list():\n    data = create_large_list()\n    pool = multiprocessing.Pool()\n    result = sum(pool.map(lambda x: x, data))  # Perform some computation\n    print(result)\n\nprocess_list()"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 231,
+    "completion_tokens": 72,
+    "total_tokens": 303
+  }
+}
