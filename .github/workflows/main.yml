@@ -11,12 +11,17 @@ jobs:
         uses: actions/checkout@v3
       - name: Setup JQ
         run: sudo apt-get install -y jq
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository https://cli.github.com/packages
+          sudo apt update
+          sudo apt install gh
       - name: Optimize Code
         run: |
           # Fetch source branch name
           pr_num=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-          pr_info=$(gh pr view https://github.com/${GITHUB_REPOSITORY}/pull/${pr_num} --json base)
-          branch_name=$(echo ${pr_info} | jq -r '.base.ref')
+          branch_name=$(gh pr view https://github.com/${GITHUB_REPOSITORY}/pull/${pr_num} --json baseRefName | jq -r '.baseRefName')
 
           # Check out new branch from the source branch
           git checkout -b optimized-${branch_name} ${branch_name}
