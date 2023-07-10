@@ -10,7 +10,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Setup JQ
-        uses: gocardless/setup-jq@v1
+        run: sudo apt-get install -y jq
       - name: Optimize Code
         run: |
           # Fetch source branch name
