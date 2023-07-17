@@ -15,7 +15,7 @@ jobs:
         run: |
           export DEBIAN_FRONTEND=noninteractive
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
-          sudo apt-add-repository https://cli.github.com/packages
+          echo "deb [arch=amd64] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list
           sudo apt-get -yq update
           sudo apt-get -yq install gh
           export DEBIAN_FRONTEND=dialog
@@ -27,7 +27,7 @@ jobs:
 
           # Check out new branch from the source branch
           git checkout -b optimized-${branch_name} ${branch_name}
-          
+
           # Get a list of changed files in the pull request
           files=$(git diff --name-only origin/${branch_name}...${{ github.sha }})
 
@@ -49,5 +49,5 @@ jobs:
           git config --global user.name "GitHub Action Bot"
           git commit -am "Optimized code"
           git push origin optimized-${branch_name}
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
