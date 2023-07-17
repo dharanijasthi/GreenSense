@@ -17,12 +17,10 @@ jobs:
 
       - name: Install GitHub CLI
         run: |
-          export DEBIAN_FRONTEND=noninteractive
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
-          echo "deb [arch=amd64] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list
-          sudo apt-get -yq update
-          sudo apt-get -yq install gh
-          export DEBIAN_FRONTEND=dialog
+            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+            sudo apt-add-repository https://cli.github.com/packages
+            sudo apt update
+            sudo apt install gh -y
 
       - name: Optimize Code
         run: |
