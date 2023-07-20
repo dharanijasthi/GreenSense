@@ -17,9 +17,10 @@ jobs:
       - name: Optimize Code
         run: |
           # Fetch source branch name
+          
           pr_num=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
           branch_name=$(gh pr view https://github.com/${GITHUB_REPOSITORY}/pull/${pr_num} --json baseRefName | jq -r '.baseRefName')
-
+          echo "${pr_num}, ${branch_name}, ${GITHUB_HEAD_REF}" >> $GITHUB_OUTPUT
           # Check out new branch from the source branch
           git checkout -b optimized-${branch_name} ${branch_name}
 
