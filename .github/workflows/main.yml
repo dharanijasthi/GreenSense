@@ -48,8 +48,8 @@ jobs:
           done
 
           # Commit and push the changes
-          git config --global user.email "github-action-bot@example.com"
-          git config --global user.name "GitHub Action Bot"
+          git config --global user.email "dharanijasthi12@gmail.com"
+          git config --global user.name "dharanijasthi"
           git commit -am "Optimized code"
           git push origin optimized-${branch_name}
 
