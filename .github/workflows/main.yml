@@ -98,7 +98,7 @@ jobs:
             const optimisedBranch = `optimised-${sourceBranch}`;
 
             // Create a PR
-            const pr = await github.pulls.create({
+            const pr = await github.rest.pulls.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 title: `Optimised changes for ${sourceBranch}`,
@@ -112,7 +112,7 @@ jobs:
             // Combine explanations and create a comment on the new PR
             const explanations = updatedFiles.map(file => `File: ${file.path}\nExplanation: ${file.explanation}`).join("\n\n");
             
-            await github.issues.createComment({
+            await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: pr.data.number,
