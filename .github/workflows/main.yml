@@ -62,7 +62,6 @@ jobs:
 
       - name: Commit and Push
         run: |
-          git checkout
           git add .
           git commit -m "Replace old code with new"
           git push
