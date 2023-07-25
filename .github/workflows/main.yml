@@ -66,6 +66,7 @@ jobs:
       - name: Create and switch to new branch
         run: |
           git checkout -b new-branch
+          git fetch
           git branch --set-upstream-to=origin/new-branch new-branch
   
       - name: Commit and push changes
