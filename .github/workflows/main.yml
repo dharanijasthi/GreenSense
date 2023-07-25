@@ -60,12 +60,16 @@ jobs:
           git config --global user.email "dharanijasthi12@gmail.com"
           git config --global user.name "dharanijasthi"
 
-      - name: Commit and Push
+      - name: Create and switch to new branch
+        run: |
+          git checkout -b new-branch
+          git branch --set-upstream-to=origin/new-branch new-branch
+  
+      - name: Commit and push changes
         run: |
           git add .
           git commit -m "Replace old code with new"
-          git push
-
+          git push origin new-branch
 
       - name: Create Branch
         run: git checkout -b new-branch
