@@ -62,10 +62,10 @@ jobs:
 
       - name: Commit and Push
         run: |
-          git checkout feature/LLMs-for-code-optimisation
+          git checkout
           git add .
           git commit -m "Replace old code with new"
-          git push origin feature/LLMs-for-code-optimisation
+          git push
 
       - name: Create Branch
         run: git checkout -b new-branch
