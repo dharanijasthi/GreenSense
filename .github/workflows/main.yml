@@ -90,14 +90,31 @@ jobs:
             # Push changes
             git push --set-upstream origin $NEW_BRANCH || echo "No changes to push"
     
-      # - name: Comment on PR
-      #   uses: actions/github-script@v5
-      #   with:
-      #     script: |
-      #       const { owner, repo, number } = context.issue;
+      - name: Create PR and Comment
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const sourceBranch = context.payload.pull_request.head.ref; 
+            const optimisedBranch = `optimised-${sourceBranch}`;
 
-      #       // Combine explanations and create a comment on the PR
-      #       const explanations = steps.process-files.outputs.updatedFiles.map(file => `File: ${file.path}\nExplanation: ${file.explanation}`).join("\n\n");
-      #       await github.rest.issues.createComment({
-      #         owner, repo, issue_number: number, body: explanations
-      #       });
+            // Create a PR
+            const pr = await github.pulls.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `Optimised changes for ${sourceBranch}`,
+                head: optimisedBranch, // "optimised-testbranch"
+                base: sourceBranch, // "testbranch"
+                body: "This PR contains optimised code."
+            });
+
+            const updatedFiles = JSON.parse(`${{ steps.process-files.outputs.updatedFiles }}`);
+
+            // Combine explanations and create a comment on the new PR
+            const explanations = updatedFiles.map(file => `File: ${file.path}\nExplanation: ${file.explanation}`).join("\n\n");
+            
+            await github.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.data.number,
+                body: explanations
+            });
