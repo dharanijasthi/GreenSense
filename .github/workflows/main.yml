@@ -55,13 +55,17 @@ jobs:
             return {
               updatedFiles
             };
+      - name: Set Git identity
+        run: |
+          git config --global user.email "dharanijasthi12@gmail.com"
+          git config --global user.name "dharanijasthi"
 
       - name: Commit and Push
         run: |
-          git status
+          git checkout main
           git add .
           git commit -m "Replace old code with new"
-          git push
+          git push origin main
 
       - name: Create Branch
         run: git checkout -b new-branch
