@@ -22,52 +22,45 @@ jobs:
         with:
           script: |
             const { owner, repo, number } = context.issue;
-
-            // Get the list of files changed in the PR
-            const { data: files } = await github.rest.pulls.listFiles({
-              owner, repo, pull_number: number
-            });
-
+            const { data: files } = await github.rest.pulls.listFiles({ owner, repo, pull_number: number });
             const updatedFiles = [];
             const fs = require('fs');
-
             for (const file of files) {
-              // Read file contents
               const fileContent = fs.readFileSync(file.filename, 'utf8');
-              console.log("file content")
-              console.log(fileContent)
-              console.log('----------')
-
-              // Use the built-in fetch function
+              console.log("file content");
+              console.log(fileContent);
+              console.log('----------');
               const response = await github.request({
                 url: 'https://reqres.in/api/users',
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                // change content to fileContent
-                // body: JSON.stringify({ content: 'hi' , explanation: 'mock explanation'})
+                headers: {
+                  'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                   "name": "morpheus",
                   "job": "leader"
                 })
               });
-              // Assuming the API returns the entire new content of the file
-              // change response.data.id to appropriate later
               const newContent = response.data.id;
-
               console.log("server response:");
               console.log(newContent);
-              console.log('---------------------')
-              // Write new content to file
+              console.log('---------------------');
               fs.writeFileSync(file.filename, newContent, 'utf8');
-
-              updatedFiles.push({ path: file.filename, explanation: newContent });
+              updatedFiles.push({
+                path: file.filename,
+                explanation: newContent
+              });
             }
-
             return {
               updatedFiles
             };
+
       - name: Commit and Push
         run: |
-            git status
+          git status
+          git add .
+          git commit -m "Replace old code with new"
+          git push
+
       - name: Create Branch
         run: git checkout -b new-branch
