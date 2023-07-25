@@ -3,10 +3,10 @@ name: Replace Old Code with New
 on:
   pull_request:
     branches:
-      - main
+        - main
     types:
-      - opened
-      - synchronize
+        - opened
+        - synchronize
 
 jobs:
   replace:
@@ -66,14 +66,24 @@ jobs:
             return {
               updatedFiles
             };
-      - name: Commit and Push
+      
+      - name: Commit and Push to New Branch
         run: |
-            git status
-      #     git config user.name "GitHub Action"
-      #     git config user.email "action@github.com"
-      #     git add -A
-      #     git commit -m "Replaced old code with new code from API"
-      #     git push
+            # Extract the source branch name
+            SOURCE_BRANCH=$GITHUB_HEAD_REF
+            NEW_BRANCH="optimised-$SOURCE_BRANCH"
+
+            # Create and switch to the new branch
+            git checkout -b $NEW_BRANCH
+
+            # Set git user details
+            git config user.name "GitHub Action"
+            git config user.email "action@github.com"
+
+            # Add, commit, and push changes
+            git add -A
+            git commit -m "Replaced old code with new code from API" || echo "No changes to commit"
+            git push --set-upstream origin $NEW_BRANCH || echo "No changes to push"
 
       # - name: Comment on PR
       #   uses: actions/github-script@v5
