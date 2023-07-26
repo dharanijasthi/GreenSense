@@ -62,10 +62,10 @@ jobs:
 
               updatedFiles.push({ path: file.filename, explanation: newContent });
             }
-
-            return {
-              updatedFiles
-            };
+            
+            console.log("::set-output name=updatedFiles::" + JSON.stringify(updatedFiles));
+            env:
+              FILES: ${{ toJson(github.event.pull_request.changed_files) }}
       
       - name: Commit and Push to New Branch
         run: |
@@ -107,6 +107,9 @@ jobs:
                 body: "This PR contains optimised code."
             });
 
+            console.log('before env')
+            console.log(${{ steps.process-files.outputs.updatedFiles }})
+            console.log('after env')
             const updatedFiles = JSON.parse(`${{ steps.process-files.outputs.updatedFiles }}`);
 
             // Combine explanations and create a comment on the new PR
