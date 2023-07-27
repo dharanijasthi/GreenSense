@@ -1,4 +1,4 @@
-name: Replace Old Code with New
+name: GreenSense
 
 on:
   pull_request:
@@ -125,7 +125,7 @@ jobs:
         run: |
             # Extract the source branch name
             SOURCE_BRANCH=$GITHUB_HEAD_REF
-            NEW_BRANCH="optimised-$SOURCE_BRANCH"
+            NEW_BRANCH="Green-$SOURCE_BRANCH"
 
             # Create and switch to the new branch
             git checkout -b $NEW_BRANCH
@@ -149,7 +149,7 @@ jobs:
         with:
           script: |
             const sourceBranch = context.payload.pull_request.head.ref; 
-            const optimisedBranch = `optimised-${sourceBranch}`;
+            const optimisedBranch = `Green-${sourceBranch}`;
 
             updatedFiles=JSON.parse(process.env.updatedFiles)
 
@@ -160,15 +160,8 @@ jobs:
             const pr = await github.rest.pulls.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                title: `Optimised changes for ${sourceBranch}`,
+                title: `GreenSense optimisations for ${sourceBranch}`,
                 head: optimisedBranch, // "optimised-testbranch"
                 base: sourceBranch, // "testbranch"
-                body: "This PR contains optimised code."
-            });
-
-            await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pr.data.number,
                 body: explanations
             });
