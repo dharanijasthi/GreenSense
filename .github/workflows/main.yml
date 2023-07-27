@@ -9,7 +9,7 @@ on:
         - synchronize
 
 jobs:
-  replace:
+  GreenSense:
     runs-on: ubuntu-latest
 
     steps:
