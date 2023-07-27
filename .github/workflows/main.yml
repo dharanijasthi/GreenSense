@@ -17,6 +17,8 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Get Updated Code
+        env: 
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} 
         id: process-files
         uses: actions/github-script@v5
         with:
@@ -34,90 +36,115 @@ jobs:
             for (const file of files) {
               // Read file contents
               const fileContent = fs.readFileSync(file.filename, 'utf8');
-              console.log("file content")
-              console.log(fileContent)
-              console.log('----------')
 
               // Use the built-in fetch function
               const response = await github.request({
-                url: 'https://reqres.in/api/users',
+                url: 'https://api.openai.com/v1/chat/completions',
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                // change content to fileContent
-                // body: JSON.stringify({ content: 'hi' , explanation: 'mock explanation'})
-                body: JSON.stringify({
-                  "name": "morpheus",
-                  "job": "leader"
-                })
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer $OPENAI_API_KEY' },
+                body: JSON.stringify(
+                        model=model,
+                        temperature=0.1,
+                        messages=[
+                        {
+                          "role": "system",
+                          "content": "Your task is to optimize the provided code. Improve its speed. Improve its algorithmic efficiency. Some optimisations may include connection pooling, inbuilt functions, parallel processing. The response should strictly follow this format: Start with the string [CODE_START], then the optimized code, followed by [CODE_END]. After that, start with [EXPLANATION_START], provide one line explanation of the optimisation and provide the complexities of the original code and complexities of the optimized code, and end with [EXPLANATION_END]."
+                        },
+                        {
+                          "role": "user",
+                          "content": f"Optimize this code: " + fileContent
+                        }
+                      )
               });
-              // Assuming the API returns the entire new content of the file
-              // change response.data.id to appropriate later
-              const newContent = response.data.id;
-
+              
               console.log("server response:");
-              console.log(newContent);
+              console.log(response);
               console.log('---------------------')
-              // Write new content to file
-              fs.writeFileSync(file.filename, newContent, 'utf8');
 
-              updatedFiles.push({ path: file.filename, explanation: newContent });
+              // GPT response
+              const chatResponse = response.data.choices[0].message.content;
+
+              const code_regex = /\[CODE_START\]([\s\S]*?)\[CODE_END\]/;
+              const explanation_regex = /\[EXPLANATION_START\]([\s\S]*?)\[EXPLANATION_END\]/;
+
+              const codeMatch = chatResponse.match(code_regex);
+              const explanationMatch = chatResponse.match(explanation_regex);
+
+              let updatedCode = fileContent
+              let explanation = 'No explanation'
+
+              if (codeMatch && codeMatch[1]) {
+                  updatedCode = codeMatch[1];
+                  console.log(updatedCode); 
+              } else {
+                  console.log("No code found");
+              }
+
+              if (explanationMatch && explanationMatch[1]) {
+                  explanation = explanationMatch[1];
+                  console.log(explanation); 
+              } else {
+                  console.log("No code found");
+              }
+
+              // Write new content to file
+              fs.writeFileSync(file.filename, updatedCode, 'utf8');
+
+              updatedFiles.push({ path: file.filename, explanation: explanation });
             }
             
             console.log("::set-output name=updatedFiles::" + JSON.stringify(updatedFiles));
             env:
               FILES: ${{ toJson(github.event.pull_request.changed_files) }}
       
-      - name: Commit and Push to New Branch
-        run: |
-            # Extract the source branch name
-            SOURCE_BRANCH=$GITHUB_HEAD_REF
-            NEW_BRANCH="optimised-$SOURCE_BRANCH"
+      # - name: Commit and Push to New Branch
+      #   run: |
+      #       # Extract the source branch name
+      #       SOURCE_BRANCH=$GITHUB_HEAD_REF
+      #       NEW_BRANCH="optimised-$SOURCE_BRANCH"
 
-            # Create and switch to the new branch
-            git checkout -b $NEW_BRANCH
+      #       # Create and switch to the new branch
+      #       git checkout -b $NEW_BRANCH
 
-            # Set git user details
-            git config user.name "GitHub Action"
-            git config user.email "action@github.com"
+      #       # Set git user details
+      #       git config user.name "GitHub Action"
+      #       git config user.email "action@github.com"
 
-            # Add and commit changes
-            git add -A
-            git commit -m "Replaced old code with new code from API" || echo "No changes to commit"
+      #       # Add and commit changes
+      #       git add -A
+      #       git commit -m "Replaced old code with new code from API" || echo "No changes to commit"
 
-            # Use GITHUB_TOKEN for authentication
-            git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+      #       # Use GITHUB_TOKEN for authentication
+      #       git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
 
-            # Push changes
-            git push --set-upstream origin $NEW_BRANCH || echo "No changes to push"
+      #       # Push changes
+      #       git push --set-upstream origin $NEW_BRANCH || echo "No changes to push"
     
-      - name: Create PR and Comment
-        uses: actions/github-script@v5
-        with:
-          script: |
-            const sourceBranch = context.payload.pull_request.head.ref; 
-            const optimisedBranch = `optimised-${sourceBranch}`;
+      # - name: Create PR and Comment
+      #   uses: actions/github-script@v5
+      #   with:
+      #     script: |
+      #       const sourceBranch = context.payload.pull_request.head.ref; 
+      #       const optimisedBranch = `optimised-${sourceBranch}`;
 
-            // Create a PR
-            const pr = await github.rest.pulls.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: `Optimised changes for ${sourceBranch}`,
-                head: optimisedBranch, // "optimised-testbranch"
-                base: sourceBranch, // "testbranch"
-                body: "This PR contains optimised code."
-            });
+      #       // Create a PR
+      #       const pr = await github.rest.pulls.create({
+      #           owner: context.repo.owner,
+      #           repo: context.repo.repo,
+      #           title: `Optimised changes for ${sourceBranch}`,
+      #           head: optimisedBranch, // "optimised-testbranch"
+      #           base: sourceBranch, // "testbranch"
+      #           body: "This PR contains optimised code."
+      #       });
 
-            console.log('before env')
-            console.log(${{ steps.process-files.outputs.updatedFiles }})
-            console.log('after env')
-            const updatedFiles = JSON.parse(`${{ steps.process-files.outputs.updatedFiles }}`);
+      #       const updatedFiles = JSON.parse(`${{ steps.process-files.outputs.updatedFiles }}`);
 
-            // Combine explanations and create a comment on the new PR
-            const explanations = updatedFiles.map(file => `File: ${file.path}\nExplanation: ${file.explanation}`).join("\n\n");
+      #       // Combine explanations and create a comment on the new PR
+      #       const explanations = updatedFiles.map(file => `File: ${file.path}\nExplanation: ${file.explanation}`).join("\n\n");
             
-            await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pr.data.number,
-                body: explanations
-            });
+      #       await github.rest.issues.createComment({
+      #           owner: context.repo.owner,
+      #           repo: context.repo.repo,
+      #           issue_number: pr.data.number,
+      #           body: explanations
+      #       });
