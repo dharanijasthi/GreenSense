@@ -17,17 +17,16 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Get Updated Code
-        env: 
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} 
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         id: process-files
         uses: actions/github-script@v5
         with:
           script: |
             const https = require('https');
             const fs = require('fs');
-        
             const { owner, repo, number } = context.issue;
-        
+
             async function makeOpenAIRequest(fileContent) {
                 return new Promise((resolve, reject) => {
                     const requestData = {
@@ -121,28 +120,47 @@ jobs:
 
             core.exportVariable('updatedFiles', updatedFiles);
 
+      - name: Add comment on file change
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const { number } = context.payload.pull_request;
+            const updatedFiles = process.env.updatedFiles;
+
+            const comment = `The following files have been updated:\n\n${updatedFiles.map(file => `- ${file.path}: ${file.explanation}`).join('\n')}`;
+
+            const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+            await octokit.issues.createComment({
+              owner,
+              repo,
+              issue_number: number,
+              body: comment
+            });
+
       - name: Commit and Push to New Branch
         run: |
-            # Extract the source branch name
-            SOURCE_BRANCH=$GITHUB_HEAD_REF
-            NEW_BRANCH="Green-$SOURCE_BRANCH"
+          # Extract the source branch name
+          SOURCE_BRANCH=$GITHUB_HEAD_REF
+          NEW_BRANCH="Green-$SOURCE_BRANCH"
 
-            # Create and switch to the new branch
-            git checkout -b $NEW_BRANCH
+          # Create and switch to the new branch
+          git checkout -b $NEW_BRANCH
 
-            # Set git user details
-            git config user.name "GitHub Action"
-            git config user.email "action@github.com"
+          # Set git user details
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
 
-            # Add and commit changes
-            git add -A
-            git commit -m "Replaced old code with new code from API" || echo "No changes to commit"
+          # Add and commit changes
+          git add -A
+          git commit -m "Replaced old code with new code from API" || echo "No changes to commit"
 
-            # Use GITHUB_TOKEN for authentication
-            git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          # Use GITHUB_TOKEN for authentication
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
 
-            # Push changes
-            git push --set-upstream origin $NEW_BRANCH || echo "No changes to push"
+          # Push changes
+          git push --set-upstream origin $NEW_BRANCH || echo "No changes to push"
     
       - name: Create PR and Comment
         uses: actions/github-script@v5
