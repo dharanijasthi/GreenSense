@@ -126,11 +126,11 @@ jobs:
       - name: Add comment on file change
         uses: actions/github-script@v4
         with:
-            github-token: ${{ secrets.GITHUB_TOKEN }}
+            github-token: ${{ secrets.GH_SECRET }}
             script: |
-                owner =  context.repo.owner,
-                repo= context.repo.repo,
-                number= context.payload.pull_request;
+                owner =  context.repo.owner
+                repo= context.repo.repo
+                number= context.payload.pull_request
                 updatedFiles=JSON.parse(process.env.updatedFiles)
                 const comment = `The following files have been updated:\n${updatedFiles.map(file => `- ${file.path}: ${file.explanation}`).join('\n')}`;
                 await github.rest.issues.createComment({ owner, repo, issue_number: number, body: comment });
@@ -153,7 +153,7 @@ jobs:
           git commit -m "Replaced old code with new code from API" || echo "No changes to commit"
 
           # Use GITHUB_TOKEN for authentication
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git remote set-url origin https://x-access-token:${{ secrets.GH_SECRET }}@github.com/${{ github.repository }}
 
           # Push changes
           git push --set-upstream origin $NEW_BRANCH || echo "No changes to push"
