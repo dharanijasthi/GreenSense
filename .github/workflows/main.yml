@@ -125,21 +125,14 @@ jobs:
       - name: Add comment on file change
         uses: actions/github-script@v4
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { owner, repo } = context.repo;
-            const { number } = context.payload.pull_request;
-            const updatedFiles = process.env.updatedFiles;
-
-            const comment = `The following files have been updated:\n\n${updatedFiles.map(file => `- ${file.path}: ${file.explanation}`).join('\n')}`;
-
-            const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
-            await octokit.issues.createComment({
-              owner,
-              repo,
-              issue_number: number,
-              body: comment
-            });
+              github-token: ${{ secrets.GITHUB_TOKEN }}
+              script: |
+                const { owner, repo } = context.repo;
+                const { number } = context.payload.pull_request;
+                const updatedFiles = context.payload.env.updatedFiles;
+                const comment = `The following files have been updated:\n${updatedFiles.map(file => `- ${file.path}: ${file.explanation}`).join('\n')}`;
+                const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+                await octokit.issues.createComment({ owner, repo, issue_number: number, body: comment });
 
       - name: Commit and Push to New Branch
         run: |
