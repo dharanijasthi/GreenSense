@@ -132,7 +132,7 @@ jobs:
                 const { number } = context.payload.pull_request;
                 updatedFiles=JSON.parse(process.env.updatedFiles)
                 const comment = `The following files have been updated:\n${updatedFiles.map(file => `- ${file.path}: ${file.explanation}`).join('\n')}`;
-                await github.rest.issues.createComment({ owner, repo, issue_number: number, body: comment });
+                await github.rest.createComment({ owner, repo, issue_number: number, body: comment });
 
       - name: Commit and Push to New Branch
         run: |
