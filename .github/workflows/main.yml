@@ -129,7 +129,7 @@ jobs:
             script: |
                 const { owner, repo } = context.repo;
                 const { number } = context.payload.pull_request;
-                const updatedFiles = context.payload.env.updatedFiles;
+                updatedFiles=JSON.parse(process.env.updatedFiles)
                 const comment = `The following files have been updated:\n${updatedFiles.map(file => `- ${file.path}: ${file.explanation}`).join('\n')}`;
                 const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
                 await octokit.issues.createComment({ owner, repo, issue_number: number, body: comment });
