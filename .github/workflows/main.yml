@@ -119,7 +119,7 @@ jobs:
                     console.error("Error with OpenAI request:", error);
                 }
             }
-            
+
 
             core.exportVariable('updatedFiles', updatedFiles);
 
@@ -132,8 +132,7 @@ jobs:
                 const { number } = context.payload.pull_request;
                 updatedFiles=JSON.parse(process.env.updatedFiles)
                 const comment = `The following files have been updated:\n${updatedFiles.map(file => `- ${file.path}: ${file.explanation}`).join('\n')}`;
-                const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
-                await octokit.issues.createComment({ owner, repo, issue_number: number, body: comment });
+                await github.rest..issues.createComment({ owner, repo, issue_number: number, body: comment });
 
       - name: Commit and Push to New Branch
         run: |
