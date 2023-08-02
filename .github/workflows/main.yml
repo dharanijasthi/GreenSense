@@ -16,6 +16,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install openai
+
+      - name: Run code
+        run: |
+          const { Configuration, OpenAIApi } = require("openai");
+          const configuration = new Configuration({ apiKey: process.env.OPENAI_API_KEY });
+          const openai = new OpenAIApi(configuration);
+        
+          async function runCode() {
+            const completion = await openai.createChatCompletion({
+              model: "gpt-3.5-turbo",
+              messages: [
+                { role: "system", content: "You are a helpful assistant." },
+                { role: "user", content: "Hello world" }
+              ]
+            });
+        
+            console.log(completion.data.choices[0].message);
+          }
+
       - name: Get Updated Code
         env: 
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} 
