@@ -125,8 +125,8 @@ jobs:
       - name: Add comment on file change
         uses: actions/github-script@v4
         with:
-              github-token: ${{ secrets.GITHUB_TOKEN }}
-              script: |
+            github-token: ${{ secrets.GITHUB_TOKEN }}
+            script: |
                 const { owner, repo } = context.repo;
                 const { number } = context.payload.pull_request;
                 const updatedFiles = context.payload.env.updatedFiles;
