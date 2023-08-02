@@ -128,9 +128,9 @@ jobs:
         with:
             github-token: ${{ secrets.GITHUB_TOKEN }}
             script: |
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                number = context.payload.pull_request;
+                owner =  context.repo.owner,
+                repo= context.repo.repo,
+                number= context.payload.pull_request;
                 updatedFiles=JSON.parse(process.env.updatedFiles)
                 const comment = `The following files have been updated:\n${updatedFiles.map(file => `- ${file.path}: ${file.explanation}`).join('\n')}`;
                 await github.rest.issues.createComment({ owner, repo, issue_number: number, body: comment });
