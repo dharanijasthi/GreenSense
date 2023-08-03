@@ -124,7 +124,7 @@ jobs:
             core.exportVariable('updatedFiles', updatedFiles);
 
       - name: Add comment on file change
-        uses: actions/github-script@v4
+        uses: actions/github-script@v5
         with:
             script: |
                 owner =  context.repo.owner
