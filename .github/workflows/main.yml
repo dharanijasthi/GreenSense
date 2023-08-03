@@ -176,21 +176,20 @@ jobs:
       - name: Create PR and Comment
         uses: actions/github-script@v5
         with:
-          script: |
-            const sourceBranch = context.payload.pull_request.head.ref; 
-            const optimisedBranch = `Green-${sourceBranch}`;
-
-            updatedFiles=JSON.parse(process.env.updatedFiles)
-
-            // Combine explanations and create a comment on the new PR
-            const explanations = updatedFiles.map(file => `File: ${file.path}\nExplanation: ${file.explanation}`).join("\n\n");
-
-            // Create a PR
-            const pr = await github.rest.pulls.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: `GreenSense optimisations for ${sourceBranch}`,
-                head: optimisedBranch, // "optimised-testbranch"
-                base: sourceBranch, // "testbranch"
-                body: explanations
-            });
+            script: |
+                const sourceBranch = context.payload.pull_request.head.ref;
+                const optimisedBranch = `Green-${sourceBranch}`;
+                const updatedFiles = JSON.parse(process.env.updatedFiles);
+      
+                // Combine explanations and create a comment on the new PR
+                const explanations = updatedFiles.map(file => `File: ${file.path}\nExplanation: ${file.explanation}`).join("\n\n");
+      
+                // Create a PR
+                const pr = await github.rest.pulls.create({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    title: `GreenSense optimisations for ${sourceBranch}`,
+                    head: optimisedBranch,
+                    base: sourceBranch,
+                    body: explanations
+                  });
