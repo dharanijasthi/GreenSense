@@ -123,33 +123,6 @@ jobs:
 
             core.exportVariable('updatedFiles', updatedFiles);
 
-      - name: Add comment to PR files
-        uses: actions/github-script@v5
-        with:
-              github-token: ${{ secrets.GITHUB_TOKEN }}
-              script: |
-                const https = require('https');
-                const fs = require('fs');
-                const { owner, repo } = context.repo;
-                const prNumber = context.payload.pull_request.number;
-                const { data: files } = await github.rest.pulls.listFiles({
-                owner, repo, pull_number: prNumber
-                });
-    
-                const comment = "This is a comment to the changed files in the PR.";
-                for (const file of files) {
-                  const commentParams = {
-                    owner,
-                    repo,
-                    issue_number: prNumber,
-                    body: comment,
-                    path: file.filename,
-                    position: 1 // Adjust the position as needed
-                  };
-    
-                  await github.rest.issues.createComment(commentParams);
-                }
-
       - name: Commit and Push to New Branch
         run: |
           # Extract the source branch name
@@ -193,3 +166,21 @@ jobs:
                     base: sourceBranch,
                     body: explanations
                   });
+                const { owner, repo } = context.repo;
+                const { data: files } = await github.rest.pulls.listFiles({
+                owner, repo, pull_number: pr
+                });
+    
+                const comment = "This is a comment to the changed files in the PR.";
+                for (const file of files) {
+                  const commentParams = {
+                    owner,
+                    repo,
+                    issue_number: pr,
+                    body: comment,
+                    path: file.filename,
+                    position: 1 // Adjust the position as needed
+                  };
+    
+                  await github.rest.issues.createComment(commentParams);
+                }
