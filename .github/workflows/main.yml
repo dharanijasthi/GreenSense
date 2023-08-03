@@ -123,19 +123,31 @@ jobs:
 
             core.exportVariable('updatedFiles', updatedFiles);
 
-      - name: Add comment on file change
+      - name: Add comment to PR files
         uses: actions/github-script@v5
         with:
-            github-token: ${{ secrets.GITHUB_TOKEN }}
-            script: |
-                owner =  context.repo.owner
-                repo= context.repo.repo
-                number= context.payload.pull_request
-                updatedFiles=JSON.parse(process.env.updatedFiles)
-                console.log("updatedFiles",updatedFiles)
-                const comment = `The following files have been updated:\n${updatedFiles.map(file => `- ${file.path}: ${file.explanation}`).join('\n')}`;
-                const issue = await github.rest.issues.createComment({ owner, repo, issue_number: number, body: comment });
-                console.log("issue")
+              github-token: ${{ secrets.GITHUB_TOKEN }}
+              script: |
+                const { owner, repo } = context.repo;
+                const prNumber = context.payload.pull_request.number;
+                const { data: files } = await github.rest.pulls.listFiles({
+                owner, repo, pull_number: number
+                });
+    
+                const comment = "This is a comment to the changed files in the PR.";
+    
+                for (const file of files.data) {
+                  const commentParams = {
+                    owner,
+                    repo,
+                    issue_number: prNumber,
+                    body: comment,
+                    path: file.filename,
+                    position: 1 // Adjust the position as needed
+                  };
+    
+                  await github.issues.createComment(commentParams);
+                }
 
       - name: Commit and Push to New Branch
         run: |
