@@ -126,7 +126,6 @@ jobs:
       - name: Add comment on file change
         uses: actions/github-script@v4
         with:
-            github-token: ${{ secrets.GH_SECRET }}
             script: |
                 owner =  context.repo.owner
                 repo= context.repo.repo
