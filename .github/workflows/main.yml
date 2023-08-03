@@ -128,10 +128,12 @@ jobs:
         with:
               github-token: ${{ secrets.GITHUB_TOKEN }}
               script: |
+                const https = require('https');
+                const fs = require('fs');
                 const { owner, repo } = context.repo;
                 const prNumber = context.payload.pull_request.number;
                 const { data: files } = await github.rest.pulls.listFiles({
-                owner, repo, pull_number: number
+                owner, repo, pull_number: prNumber
                 });
     
                 const comment = "This is a comment to the changed files in the PR.";
