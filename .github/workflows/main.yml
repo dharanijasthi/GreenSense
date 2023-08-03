@@ -137,7 +137,7 @@ jobs:
                 });
     
                 const comment = "This is a comment to the changed files in the PR.";
-    
+                console.log("files",files.data)
                 for (const file of files.data) {
                   const commentParams = {
                     owner,
