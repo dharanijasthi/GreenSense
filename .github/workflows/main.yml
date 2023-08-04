@@ -152,6 +152,9 @@ jobs:
                 const sourceBranch = context.payload.pull_request.head.ref;
                 const optimisedBranch = `Green-${sourceBranch}`;
                 const updatedFiles = JSON.parse(process.env.updatedFiles);
+                for(let file in updatedFiles){
+                  echo "Your comment text" >> ${file.path}
+                }
       
                 // Combine explanations and create a comment on the new PR
                 const explanations = updatedFiles.map(file => `File: ${file.path}\nExplanation: ${file.explanation}`).join("\n\n");
@@ -165,15 +168,3 @@ jobs:
                     base: sourceBranch,
                     body: explanations
                   });
-
-                  
-      - name: Add comment on PR changes
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-                    changed_files=$(git diff --name-only ${{ github.base_ref }}...${{ github.head_ref }})
-                    comment="The following files have been changed in this pull request:\n\n"
-                    for file in $changed_files; do
-                      comment+="* $file\n"
-                    done
-                    echo "$comment" | gh pr comment ${{ github.event.pull_request.number }} --repo ${{ github.repository }}
