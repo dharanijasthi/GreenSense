@@ -166,11 +166,16 @@ jobs:
                     base: sourceBranch,
                     body: explanations
                   });
+          
+      - name: Add Comment to Changed Files
+        uses: actions/github-script@v5
+        with:
+            script: |
                 const { owner, repo } = context.repo;
                 const { data: files } = await github.rest.pulls.listFiles({
                 owner, repo, pull_number: pr
                 });
-    
+
                 const comment = "This is a comment to the changed files in the PR.";
                 for (const file of files) {
                   const commentParams = {
@@ -180,7 +185,6 @@ jobs:
                     body: comment,
                     path: file.filename,
                     position: 1 // Adjust the position as needed
-                  };
-    
-                  await github.rest.issues.createComment(commentParams);
-                }
+                };
+
+                await github.rest.issues.createComment(commentParams);
