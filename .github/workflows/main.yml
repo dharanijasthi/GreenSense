@@ -153,7 +153,7 @@ jobs:
                 const optimisedBranch = `Green-${sourceBranch}`;
                 const updatedFiles = JSON.parse(process.env.updatedFiles);
                 for(let file in updatedFiles){
-                  echo "Your comment text" >> ${file.path}
+                  echo "This file got changed" >> ${file.path}
                 }
       
                 // Combine explanations and create a comment on the new PR
