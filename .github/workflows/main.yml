@@ -156,6 +156,9 @@ jobs:
                 // Combine explanations and create a comment on the new PR
                 const explanations = updatedFiles.map(file => `File: ${file.path}\nExplanation: ${file.explanation}`).join("\n\n");
       
+                for(let file in updatedFiles){
+                  echo ${file.explanation} >> ${file.path}
+                }
                 // Create a PR
                 const pr = await github.rest.pulls.create({
                     owner: context.repo.owner,
@@ -165,12 +168,3 @@ jobs:
                     base: sourceBranch,
                     body: explanations
                   });
-
-                for(let file in updatedFiles){
-                  echo ${file.explanation} >> ${file.path}
-                }
-
-                git config user.name "GitHub Action"
-                git config user.email "action@github.com"
-                git add -A
-                git commit -m "Replaced old code with new code from API" || echo "No changes to commit"
