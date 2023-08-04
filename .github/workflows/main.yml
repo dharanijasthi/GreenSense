@@ -152,9 +152,6 @@ jobs:
                 const sourceBranch = context.payload.pull_request.head.ref;
                 const optimisedBranch = `Green-${sourceBranch}`;
                 const updatedFiles = JSON.parse(process.env.updatedFiles);
-                for(let file in updatedFiles){
-                  echo "This file got changed" >> ${file.path}
-                }
       
                 // Combine explanations and create a comment on the new PR
                 const explanations = updatedFiles.map(file => `File: ${file.path}\nExplanation: ${file.explanation}`).join("\n\n");
@@ -168,3 +165,14 @@ jobs:
                     base: sourceBranch,
                     body: explanations
                   });
+
+                for(let file in updatedFiles){
+                  echo ${file.explanation} >> ${file.path}
+                }
+
+                git config user.name "GitHub Action"
+                git config user.email "action@github.com"
+
+                # Add and commit changes
+                git add -A
+                git commit -m "Replaced old code with new code from API" || echo "No changes to commit"
