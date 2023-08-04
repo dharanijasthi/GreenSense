@@ -7,7 +7,6 @@ on:
     types:
         - opened
         - synchronize
-        
 
 jobs:
   GreenSense:
@@ -166,25 +165,14 @@ jobs:
                     base: sourceBranch,
                     body: explanations
                   });
-          
-      - name: Add Comment to Changed Files
-        uses: actions/github-script@v5
-        with:
-            script: |
-                const { owner, repo } = context.repo;
-                const { data: files } = await github.rest.pulls.listFiles({
-                owner, repo, pull_number: pr
-                });
 
-                const comment = "This is a comment to the changed files in the PR.";
-                for (const file of files) {
-                  const commentParams = {
-                    owner,
-                    repo,
-                    issue_number: pr,
-                    body: comment,
-                    path: file.filename,
-                    position: 1 // Adjust the position as needed
-                };
-
-                await github.rest.issues.createComment(commentParams);
+      - name: Add comment on PR changes
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+                    changed_files=$(git diff --name-only ${{ github.base_ref }}...${{ github.head_ref }})
+                    comment="The following files have been changed in this pull request:\n\n"
+                    for file in $changed_files; do
+                      comment+="* $file\n"
+                    done
+                    echo "$comment" | gh pr comment ${{ github.event.pull_request.number }} --repo ${{ github.repository }}
