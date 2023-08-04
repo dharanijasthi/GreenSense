@@ -1,10 +1,10 @@
+
 import os
 import openai
 import tiktoken
+from concurrent.futures import ThreadPoolExecutor
 
 openai.api_key = os.environ['OPENAI_API_KEY']
-
-
 
 def num_tokens_from_string(string: str, encoding_name: str) -> int:
     """Returns the number of tokens in a text string."""
@@ -27,35 +27,35 @@ print('Number of tokens for prompt: {}'.format(
 
 # Chat
 def chat(prompt, unoptimised_code):
-  chat_response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
-    messages=[
-      {
-          "role": "user",
-          "content": prompt.format(unoptimised_code)
-      }
-    ]
-  )
-  print('Chat response: \n')
-  print(chat_response, end='\n\n')
+    chat_response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {
+                "role": "user",
+                "content": prompt.format(unoptimised_code)
+            }
+        ]
+    )
+    print('Chat response: \n')
+    print(chat_response, end='\n\n')
 
 # Completions
 def complete(prompt, unoptimised_code):
-  completed_code = openai.Completion.create(
-    model="text-davinci-003",
-    prompt=prompt.format(unoptimised_code),
-    temperature=0.2
-  )
-  print(completed_code, end='\n\n')
+    completed_code = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=prompt.format(unoptimised_code),
+        temperature=0.2
+    )
+    print(completed_code, end='\n\n')
 
 # Edit
 def edit(prompt, unoptimised_code):
-  edited_code = openai.Edit.create(
-    model="text-davinci-edit-001",
-    input=unoptimised_code,
-    instruction=prompt.format("")
-  )
-  print(edited_code, end='\n\n')
+    edited_code = openai.Edit.create(
+        model="text-davinci-edit-001",
+        input=unoptimised_code,
+        instruction=prompt.format("")
+    )
+    print(edited_code, end='\n\n')
 
 # Updated Chat
 
@@ -87,20 +87,20 @@ process_list()
 '''
 
 def system_role_chat(system_prompt, user_prompt, unoptimised_code):
-  chat_response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo-0613",
-    messages=[
-      {
-          "role": "system",
-          "content": system_prompt
-      },
-      {
-          "role": "user",
-          "content": user_prompt.format(unoptimised_code)
-      }
-    ]
-  )
-  print('Chat response: \n')
-  print(chat_response, end='\n\n')
+    chat_response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-0613",
+        messages=[
+            {
+                "role": "system",
+                "content": system_prompt
+            },
+            {
+                "role": "user",
+                "content": user_prompt.format(unoptimised_code)
+            }
+        ]
+    )
+    print('Chat response: \n')
+    print(chat_response, end='\n\n')
 
 system_role_chat(system_prompt, user_prompt, unoptimised_code)

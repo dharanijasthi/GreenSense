@@ -1,2 +1,13 @@
-openai
-tiktoken
+
+import openai
+import tiktoken
+
+openai.api_key = 'YOUR_API_KEY'
+
+def optimize_code(text):
+    tokens = tiktoken.tokenize(text)
+    return tokens
+
+text = "This is a sample text to tokenize."
+optimized_tokens = optimize_code(text)
+print(optimized_tokens)
