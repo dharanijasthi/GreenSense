@@ -1,8 +1,6 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 from random import randint, shuffle
-
+from multiprocessing import Pool
 
 def print_board(board):
     """

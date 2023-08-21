@@ -1,3 +1,7 @@
-openai
-tiktoken
-pygame==2.0.1
+
+import openai
+import tiktoken
+import pygame
+
+# Your code here
+
