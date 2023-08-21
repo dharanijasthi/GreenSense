@@ -16,18 +16,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-
       - name: Get Updated Code
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        env: 
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} 
         id: process-files
         uses: actions/github-script@v5
         with:
           script: |
             const https = require('https');
             const fs = require('fs');
+        
             const { owner, repo, number } = context.issue;
-
+        
             async function makeOpenAIRequest(fileContent) {
                 return new Promise((resolve, reject) => {
                     const requestData = {
@@ -119,52 +119,49 @@ jobs:
                 }
             }
 
-
             core.exportVariable('updatedFiles', updatedFiles);
 
       - name: Commit and Push to New Branch
         run: |
-          # Extract the source branch name
-          SOURCE_BRANCH=$GITHUB_HEAD_REF
-          NEW_BRANCH="Green-$SOURCE_BRANCH"
+            # Extract the source branch name
+            SOURCE_BRANCH=$GITHUB_HEAD_REF
+            NEW_BRANCH="Green-$SOURCE_BRANCH"
 
-          # Create and switch to the new branch
-          git checkout -b $NEW_BRANCH
+            # Create and switch to the new branch
+            git checkout -b $NEW_BRANCH
 
-          # Set git user details
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
+            # Set git user details
+            git config user.name "GitHub Action"
+            git config user.email "action@github.com"
 
-          # Add and commit changes
-          git add -A
-          git commit -m "Replaced old code with new code from API" || echo "No changes to commit"
+            # Add and commit changes
+            git add -A
+            git commit -m "Replaced old code with new code from API" || echo "No changes to commit"
 
-          # Use GITHUB_TOKEN for authentication
-          git remote set-url origin https://x-access-token:${{ secrets.GH_SECRET }}@github.com/${{ github.repository }}
+            # Use GITHUB_TOKEN for authentication
+            git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
 
-          # Push changes
-          git push --set-upstream origin $NEW_BRANCH || echo "No changes to push"
+            # Push changes
+            git push --set-upstream origin $NEW_BRANCH || echo "No changes to push"
     
       - name: Create PR and Comment
         uses: actions/github-script@v5
         with:
-            script: |
-                const sourceBranch = context.payload.pull_request.head.ref;
-                const optimisedBranch = `Green-${sourceBranch}`;
-                const updatedFiles = JSON.parse(process.env.updatedFiles);
-      
-                // Combine explanations and create a comment on the new PR
-                const explanations = updatedFiles.map(file => `File: ${file.path}\nExplanation: ${file.explanation}`).join("\n\n");
-      
-                for file in ${updatedFiles}; do
-                  echo ${file.explanation} >> ${file.path}
+          script: |
+            const sourceBranch = context.payload.pull_request.head.ref; 
+            const optimisedBranch = `Green-${sourceBranch}`;
 
-                // Create a PR
-                const pr = await github.rest.pulls.create({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    title: `GreenSense optimisations for ${sourceBranch}`,
-                    head: optimisedBranch,
-                    base: sourceBranch,
-                    body: explanations
-                  });
+            updatedFiles=JSON.parse(process.env.updatedFiles)
+
+            // Combine explanations and create a comment on the new PR
+            const explanations = updatedFiles.map(file => `File: ${file.path}\nExplanation: ${file.explanation}`).join("\n\n");
+
+            // Create a PR
+            const pr = await github.rest.pulls.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `GreenSense optimisations for ${sourceBranch}`,
+                head: optimisedBranch, // "optimised-testbranch"
+                base: sourceBranch, // "testbranch"
+                body: explanations
+            });
