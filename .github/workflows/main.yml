@@ -70,6 +70,7 @@ jobs:
             });
             const updatedFiles = [];
             for (const file of files) {
+              if (file.filename.endsWith('.py')){
                 const fileContent = fs.readFileSync(file.filename, 'utf8');
                 try {
                     const response = await makeOpenAIRequest(fileContent);
@@ -93,6 +94,7 @@ jobs:
                 } catch (error) {
                     console.error("Error with OpenAI request:", error);
                 }
+              }
             }
             core.exportVariable('updatedFiles', updatedFiles);
       - name: Commit and Push to New Branch
