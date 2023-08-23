@@ -87,7 +87,6 @@ jobs:
                     if (explanationMatch && explanationMatch[1]) {
                         explanation = explanationMatch[1];
                     }
-                    // Write new content to file
                     updatedFiles.push({ path: file.filename, explanation: explanation });
                     const updatedContent = `File: ${file.filename}\n\nUpdated Code:\n${updatedCode}\n\nExplanation:\n${explanation}\n\n`;
                     fs.writeFileSync(file.filename, updatedContent, 'utf8');
