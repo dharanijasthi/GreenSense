@@ -92,7 +92,7 @@ jobs:
                     const updatedContent = `File: ${file.filename}\n\nUpdated Code:\n${updatedCode}\n\nExplanation:\n${explanation}\n\n`;
                     const comment = `Explanation: ${explanation}`;
 
-                    await github.rest.pulls.createReviewComment({
+                    const comment = await github.rest.pulls.createReviewComment({
                       owner,
                       repo,
                       pull_number: number,
