@@ -90,7 +90,7 @@ jobs:
                     }
                     updatedFiles.push({ path: file.filename, explanation: explanation });
                     const updatedContent = `File: ${file.filename}\n\nUpdated Code:\n${updatedCode}\n\nExplanation:\n${explanation}\n\n`;
-                    const comment = `Explanation: ${file.explanation}`;
+                    const comment = `Explanation: ${explanation}`;
 
                     await github.rest.pulls.createReviewComment({
                       owner,
