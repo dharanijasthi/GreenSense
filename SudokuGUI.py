@@ -1,3 +1,6 @@
+File: SudokuGUI.py
+
+Updated Code:
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from sudokutools import valid, solve, find_empty, generate_board
@@ -424,3 +427,8 @@ def main():
 
 main()
 pygame.quit()
+
+
+Explanation:
+No explanation
+
