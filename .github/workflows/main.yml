@@ -88,8 +88,10 @@ jobs:
                     if (explanationMatch && explanationMatch[1]) {
                         explanation = explanationMatch[1];
                     }
+                    fs.writeFileSync(file.filename, updatedCode, 'utf8');
                     updatedFiles.push({ path: file.filename, explanation: explanation });
                     const updatedContent = `File: ${file.filename}\n\nUpdated Code:\n${updatedCode}\n\nExplanation:\n${explanation}\n\n`;
+                    # fs.writeFileSync(file.filename, updatedContent, 'utf8');
                     const comment = `Explanation: ${explanation}`;
 
                     const review_comment = await github.rest.pulls.createReviewComment({
