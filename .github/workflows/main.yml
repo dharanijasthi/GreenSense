@@ -70,6 +70,7 @@ jobs:
             });
             const updatedFiles = [];
             for (const file of files) {
+              if (file.filename.endsWith('.py')) { 
                 const fileContent = fs.readFileSync(file.filename, 'utf8');
                 try {
                     const response = await makeOpenAIRequest(fileContent);
@@ -87,13 +88,13 @@ jobs:
                     if (explanationMatch && explanationMatch[1]) {
                         explanation = explanationMatch[1];
                     }
-                    // changed code
                     updatedFiles.push({ path: file.filename, explanation: explanation });
                     const updatedContent = `File: ${file.filename}\n\nUpdated Code:\n${updatedCode}\n\nExplanation:\n${explanation}\n\n`;
                     fs.writeFileSync(file.filename, updatedContent, 'utf8');
                 } catch (error) {
                     console.error("Error with OpenAI request:", error);
                 }
+              }
             }
             core.exportVariable('updatedFiles', updatedFiles);
       - name: Commit and Push to New Branch
