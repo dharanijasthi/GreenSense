@@ -90,7 +90,17 @@ jobs:
                     }
                     updatedFiles.push({ path: file.filename, explanation: explanation });
                     const updatedContent = `File: ${file.filename}\n\nUpdated Code:\n${updatedCode}\n\nExplanation:\n${explanation}\n\n`;
-                    fs.writeFileSync(file.filename, updatedContent, 'utf8');
+                    const comment = `Explanation: ${file.explanation}`;
+
+                    await github.rest.pulls.createReviewComment({
+                      owner,
+                      repo,
+                      pull_number: number,
+                      body: comment,
+                      path: file.path,
+                      position: 1, // Specify the line number where the comment should be added
+                    });
+                    # fs.writeFileSync(file.filename, updatedContent, 'utf8');
                 } catch (error) {
                     console.error("Error with OpenAI request:", error);
                 }
