@@ -9,7 +9,6 @@ import random
 
 pygame.init()
 
-
 class Board:
     def __init__(self, window):
         """
