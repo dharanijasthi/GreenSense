@@ -133,13 +133,20 @@ jobs:
                 body: explanations
             });
             const comment = `Explanation: ${file.explanation}`;
-            const { number } = context.issue;
-            const review_comment = await github.rest.pulls.createReviewComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: number,
-                body: comment,
-                path: file.path,
-                position: 1
+            const { data: files } = await github.rest.pulls.listFiles({
+                owner, repo, pull_number: number
             });
+            const { number } = context.issue;
+            for (const file of files) {
+              if (file.filename.endsWith('.py')) { 
+                const review_comment = await github.rest.pulls.createReviewComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: number,
+                  body: comment,
+                  path: file.path,
+                  position: 1
+                });
+              }
+            }
             
