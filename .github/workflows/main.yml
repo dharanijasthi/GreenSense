@@ -133,22 +133,17 @@ jobs:
                 base: sourceBranch, // "testbranch"
                 body: explanations
             });
-      
-      - name: Add Review Comment
-        uses: actions/github-script@v5
-        with:
-              script: |
-                const { owner, repo, number } = context.issue;
-                const comment = `Your review comment here`;
+            const prNumber = pr.data.number;
+            const comment = `Your review comment here`;
           
-                const { data: files } = await github.rest.pulls.listFiles({ owner, repo, pull_number: number });
-                const commitID = context.payload.pull_request.head.sha;
-                for (const file of files) {
-                  if (file.filename.endsWith('.py')) {
+            const { data: files } = await github.rest.pulls.listFiles({ owner, repo, pull_number: prNumber });
+            const commitID = context.payload.pull_request.head.sha;
+            for (const file of files) {
+              if (file.filename.endsWith('.py')) {
                     await github.rest.pulls.createReviewComment({
                       owner: context.repo.owner,
                       repo: context.repo.repo,
-                      pull_number: number,
+                      pull_number: prNumber,
                       body: comment,
                       path: file.filename,
                       commit_id: commitID,
@@ -156,4 +151,3 @@ jobs:
                     });
                   }
                 }
-            
