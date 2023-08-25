@@ -142,6 +142,7 @@ jobs:
                 const comment = `Your review comment here`;
           
                 const { data: files } = await github.rest.pulls.listFiles({ owner, repo, pull_number: number });
+                const commitID = context.sha;
                 for (const file of files) {
                   if (file.filename.endsWith('.py')) {
                     await github.rest.pulls.createReviewComment({
@@ -150,6 +151,7 @@ jobs:
                       pull_number: number,
                       body: comment,
                       path: file.filename,
+                      commit_id: commitID,
                       position: 1
                     });
                   }
