@@ -133,12 +133,7 @@ jobs:
                 base: sourceBranch, // "testbranch"
                 body: explanations
             });
-      
-      - name: Add Review Comment
-        uses: actions/github-script@v5
-        with:
-              script: |
-                const { owner, repo, number } = context.issue;
+            const { owner, repo, number } = context.issue;
                 const comment = `Your review comment here`;
                 const prNumber = pr.data.number;
                 const { data: files } = await github.rest.pulls.listFiles({ owner, repo, pull_number: number });
@@ -156,4 +151,3 @@ jobs:
                     });
                   }
                 }
-            
