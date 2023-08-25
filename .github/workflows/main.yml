@@ -97,21 +97,7 @@ jobs:
               }
             }
             core.exportVariable('updatedFiles', updatedFiles);
-            const { data: files } = await github.rest.pulls.listFiles({ owner, repo, pull_number: number });
-            const comment = 'Your review comment goes here';
-
-            for (const file of files) {
-              if (file.filename.endsWith('.py')) {
-                await github.rest.pulls.createReviewComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: number,
-                  body: comment,
-                  path: file.filename,
-                  position: 1
-                });
-              }
-            }
+    
       - name: Commit and Push to New Branch
         run: |
             # Extract the source branch name
@@ -147,21 +133,25 @@ jobs:
                 base: sourceBranch, // "testbranch"
                 body: explanations
             });
-            # const comment = `Explanation: ${file.explanation}`;
-            # const { data: files } = await github.rest.pulls.listFiles({
-            #     owner, repo, pull_number: number
-            # });
-            # const { number } = context.issue;
-            # for (const file of files) {
-            #   if (file.filename.endsWith('.py')) { 
-            #     const review_comment = await github.rest.pulls.createReviewComment({
-            #       owner: context.repo.owner,
-            #       repo: context.repo.repo,
-            #       pull_number: number,
-            #       body: comment,
-            #       path: file.path,
-            #       position: 1
-            #     });
-            #   }
-            # }
+      
+      - name: Add Review Comment
+        uses: actions/github-script@v5
+        with:
+              script: |
+                const { owner, repo, number } = context.issue;
+                const comment = `Your review comment here`;
+          
+                const { data: files } = await github.rest.pulls.listFiles({ owner, repo, pull_number: number });
+                for (const file of files) {
+                  if (file.filename.endsWith('.py')) {
+                    await github.rest.pulls.createReviewComment({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      pull_number: number,
+                      body: comment,
+                      path: file.filename,
+                      position: 1
+                    });
+                  }
+                }
             
