@@ -149,7 +149,8 @@ jobs:
         uses: actions/github-script@v5
         with:
           script: |
-            const sourceBranch = context.payload.pull_request.head.ref; 
+            # const sourceBranch = context.payload.pull_request.head.ref;
+            const sourceBranch = github.ref; 
             const optimisedBranch = `Green-${sourceBranch}`;
 
             updatedFiles=JSON.parse(process.env.updatedFiles)
