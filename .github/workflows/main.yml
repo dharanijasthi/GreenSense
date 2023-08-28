@@ -1,4 +1,5 @@
 name: GreenSense
+
 on:
   pull_request:
     branches:
@@ -6,22 +7,27 @@ on:
     types:
         - opened
         - synchronize
+
 jobs:
   GreenSense:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
       - name: Get Updated Code
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        env: 
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} 
         id: process-files
         uses: actions/github-script@v5
         with:
           script: |
             const https = require('https');
             const fs = require('fs');
+        
             const { owner, repo, number } = context.issue;
+        
             async function makeOpenAIRequest(fileContent) {
                 return new Promise((resolve, reject) => {
                     const requestData = {
@@ -38,6 +44,7 @@ jobs:
                             }
                         ]
                     };
+        
                     const options = {
                         hostname: 'api.openai.com',
                         path: '/v1/chat/completions',
@@ -48,101 +55,145 @@ jobs:
                             'Content-Length': Buffer.byteLength(JSON.stringify(requestData))
                         }
                     };
+        
                     const req = https.request(options, res => {
                         let responseBody = '';
+        
                         res.on('data', chunk => {
                             responseBody += chunk;
-                        });        
+                        });
+        
                         res.on('end', () => {
                             resolve(JSON.parse(responseBody));
                         });
                     });
+        
                     req.on('error', error => {
                         reject(error);
                     });
+        
                     req.write(JSON.stringify(requestData));
                     req.end();
                 });
             }
+        
             // Get the list of files changed in the PR
             const { data: files } = await github.rest.pulls.listFiles({
                 owner, repo, pull_number: number
             });
+        
             const updatedFiles = [];
+        
             for (const file of files) {
-              if (file.filename.endsWith('.py')) { 
                 const fileContent = fs.readFileSync(file.filename, 'utf8');
+        
                 try {
                     const response = await makeOpenAIRequest(fileContent);
+
                     // GPT response
                     const chatResponse = response.choices[0].message.content;
+        
                     const code_regex = /\[CODE_START\]([\s\S]*?)\[CODE_END\]/;
                     const explanation_regex = /\[EXPLANATION_START\]([\s\S]*?)\[EXPLANATION_END\]/;
+        
                     const codeMatch = chatResponse.match(code_regex);
                     const explanationMatch = chatResponse.match(explanation_regex);
+        
                     let updatedCode = fileContent;
                     let explanation = 'No explanation';
+        
                     if (codeMatch && codeMatch[1]) {
                         updatedCode = codeMatch[1];
-                    }
+                    } 
+        
                     if (explanationMatch && explanationMatch[1]) {
                         explanation = explanationMatch[1];
-                    }
+                    } 
+        
+                    // Write new content to file
+                    fs.writeFileSync(file.filename, updatedCode, 'utf8');
+        
                     updatedFiles.push({ path: file.filename, explanation: explanation });
-                    const updatedContent = `File: ${file.filename}\n\nUpdated Code:\n${updatedCode}\n\nExplanation:\n${explanation}\n\n`;
-                    fs.writeFileSync(file.filename, updatedContent, 'utf8');
                 } catch (error) {
                     console.error("Error with OpenAI request:", error);
                 }
-              }
             }
+
             core.exportVariable('updatedFiles', updatedFiles);
-    
-      - name: Commit and Push to New Branch
+
+      
+      - name: Commit and Push to New Branch to New Branch
         run: |
             # Extract the source branch name
             SOURCE_BRANCH=$GITHUB_HEAD_REF
             NEW_BRANCH="Green-$SOURCE_BRANCH"
+
             # Create and switch to the new branch
             git checkout -b $NEW_BRANCH
+
             # Set git user details
             git config user.name "GitHub Action"
             git config user.email "action@github.com"
+
             # Add and commit changes
             git add -A
             git commit -m "Replaced old code with new code from API" || echo "No changes to commit"
+
             # Use GITHUB_TOKEN for authentication
-            git remote set-url origin https://x-access-token:${{ secrets.GH_SECRET }}@github.com/${{ github.repository }}
+            git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+
             # Push changes
             git push --set-upstream origin $NEW_BRANCH || echo "No changes to push"
+    
       - name: Create PR and Comment
         uses: actions/github-script@v5
         with:
           script: |
-            const sourceBranch = context.payload.pull_request.head.ref;
+            const sourceBranch = context.payload.pull_request.head.ref; 
             const optimisedBranch = `Green-${sourceBranch}`;
+
             updatedFiles=JSON.parse(process.env.updatedFiles)
+
             // Combine explanations and create a comment on the new PR
             const explanations = updatedFiles.map(file => `File: ${file.path}\nExplanation: ${file.explanation}`).join("\n\n");
-            // Create a PR
-            const pr = await github.rest.pulls.create({
+
+            // Check if a PR already exists for the branch
+            const existingPRs = await github.rest.pulls.list({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                title: `GreenSense optimisations for ${sourceBranch}`,
-                head: optimisedBranch, // "optimised-testbranch"
-                base: sourceBranch, // "testbranch"
-                body: explanations
+                head: `${context.repo.owner}:${optimisedBranch}`
             });
-        
-      - name: Create Review Comment
-        run: |
-              # Extract the PR number from the previous step's output
-              PR_NUMBER=$(jq -r '.number' "$GITHUB_EVENT_PATH")
+
+            let prNumber = null
+            // If no PRs found for the branch, create one
+            if (existingPRs.data.length === 0) {
+              // Create a PR
+              pr = await github.rest.pulls.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: `GreenSense optimisations for ${sourceBranch}`,
+                  head: optimisedBranch, // "optimised-testbranch"
+                  base: sourceBranch, // "testbranch"
+                  body: explanations
+              });
+              prNumber = pr.data.number
+            }
+            else {
+              prNumber = existingPRs.data[0].number;
+            }
           
-              # Create a review comment using the GitHub REST API
-              curl -X POST \
-                -H "Authorization: Bearer ${{ secrets.GH_SECRET }}" \
-                -H "Accept: application/vnd.github.v3+json" \
-                -d '{"body": "Your review comment"}' \
-                "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER/comments"
-      
+            const comments = updatedFiles.map(file => ({
+                path: file.path,
+                position: 1,  // This needs to be the line number where you want the comment
+                body: file.explanation
+            }));
+
+            // Create review comments for each file
+            await github.rest.pulls.createReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,  
+                commit_id: context.sha,  
+                event: "COMMENT",  
+                comments: comments
+            });
