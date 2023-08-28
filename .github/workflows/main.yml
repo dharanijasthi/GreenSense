@@ -121,7 +121,8 @@ jobs:
 
             core.exportVariable('updatedFiles', updatedFiles);
 
-      - name: Commit and Push to New Branch
+      
+      - name: Commit and Push to New Branch to New Branch
         run: |
             # Extract the source branch name
             SOURCE_BRANCH=$GITHUB_HEAD_REF
@@ -192,7 +193,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: prNumber,  
-                commit_id: pr.data.head.sha,  
+                commit_id: context.sha,  
                 event: "COMMENT",  
                 comments: comments
             });
