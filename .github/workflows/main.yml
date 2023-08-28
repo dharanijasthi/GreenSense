@@ -135,7 +135,7 @@ jobs:
             });
             
             const commitID = context.payload.pull_request.head.sha;
-            for (const file of files) {
+            for (const file of updatedFiles) {
               if (file.filename.endsWith('.py')) {
                 await github.rest.pulls.createReviewComment({
                   owner: context.repo.owner,
