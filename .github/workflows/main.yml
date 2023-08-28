@@ -133,7 +133,7 @@ jobs:
                 base: sourceBranch, // "testbranch"
                 body: explanations
             });
-            # PR_NUMBER=$(jq -r '.number' "$GITHUB_EVENT_PATH")
+            PR_NUMBER=$(jq -r '.number' "$GITHUB_EVENT_PATH")
             # const { data: files } = await github.rest.pulls.listFiles({
             #     owner, repo, pull_number: number
             # });
@@ -162,7 +162,7 @@ jobs:
             await github.rest.pulls.createReview({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                pull_number: pr.data.number,  
+                pull_number: PR_NUMBER,  
                 commit_id: pr.data.head.sha,  
                 event: "COMMENT",  
                 comments: comments
