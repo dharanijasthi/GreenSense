@@ -133,16 +133,19 @@ jobs:
                 base: sourceBranch, // "testbranch"
                 body: explanations
             });
-        
-      - name: Create Review Comment
-        run: |
-              # Extract the PR number from the previous step's output
-              PR_NUMBER=$(jq -r '.number' "$GITHUB_EVENT_PATH")
-          
-              # Create a review comment using the GitHub REST API
-              curl -X POST \
-                -H "Authorization: Bearer ${{ secrets.GH_SECRET }}" \
-                -H "Accept: application/vnd.github.v3+json" \
-                -d '{"body": "Your review comment"}' \
-                "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER/comments"
+            
+            const commitID = context.payload.pull_request.head.sha;
+            for (const file of files) {
+              if (file.filename.endsWith('.py')) {
+                await github.rest.pulls.createReviewComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: context.repo.number,
+                  body: file.explanation,
+                  path: file.filename,
+                  commit_id: commitID,
+                  position: 1
+                });
+              }
+            }
       
