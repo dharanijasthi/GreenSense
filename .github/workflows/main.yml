@@ -133,13 +133,13 @@ jobs:
                 base: sourceBranch, // "testbranch"
                 body: explanations
             });
+            const commitID = context.payload.pull_request.head.sha;
             for (const file of updatedFiles) {
               if (file.filename.endsWith('.py')) {
                 await github.rest.pulls.createReviewComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  pull_number: number,
-                  body: ${file.explanation},
+                  body: file.explanation,
                   path: file.filename,
                   commit_id: commitID,
                   position: 1
