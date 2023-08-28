@@ -133,6 +133,7 @@ jobs:
                 base: sourceBranch, // "testbranch"
                 body: explanations
             });
+            const { owner, repo, number } = context.issue;
             const { data: files } = await github.rest.pulls.listFiles({
                 owner, repo, pull_number: number
             });
