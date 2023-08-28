@@ -134,37 +134,37 @@ jobs:
                 body: explanations
             });
             PR_NUMBER=$(jq -r '.number' "$GITHUB_EVENT_PATH")
-            # const { data: files } = await github.rest.pulls.listFiles({
-            #     owner, repo, pull_number: number
-            # });
-            # const commitID = context.payload.pull_request.head.sha;
-            # for (const file of updatedFiles) {
-            #   if (file.filename.endsWith('.py')) {
-            #     await github.rest.pulls.createReviewComment({
-            #       owner: context.repo.owner,
-            #       repo: context.repo.repo,
-            #       pull_number: PR_NUMBER,
-            #       body: file.explanation,
-            #       path: file.filename,
-            #       commit_id: commitID,
-            #       position: 1
-            #     });
-            #   }
-            # }
-
-            const comments = updatedFiles.map(file => ({
-                path: file.path,
-                position: 1,  // This needs to be the line number where you want the comment
-                body: file.explanation
-            }));
-
-            // Create review comments for each file
-            await github.rest.pulls.createReview({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: PR_NUMBER,  
-                commit_id: pr.data.head.sha,  
-                event: "COMMENT",  
-                comments: comments
+            const { data: files } = await github.rest.pulls.listFiles({
+                owner, repo, pull_number: number
             });
+            const commitID = context.payload.pull_request.head.sha;
+            for (const file of updatedFiles) {
+              if (file.filename.endsWith('.py')) {
+                await github.rest.pulls.createReviewComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: PR_NUMBER,
+                  body: file.explanation,
+                  path: file.filename,
+                  commit_id: commitID,
+                  position: 1
+                });
+              }
+            }
+
+            # const comments = updatedFiles.map(file => ({
+            #     path: file.path,
+            #     position: 1,  // This needs to be the line number where you want the comment
+            #     body: file.explanation
+            # }));
+
+            # // Create review comments for each file
+            # await github.rest.pulls.createReview({
+            #     owner: context.repo.owner,
+            #     repo: context.repo.repo,
+            #     pull_number: PR_NUMBER,  
+            #     commit_id: pr.data.head.sha,  
+            #     event: "COMMENT",  
+            #     comments: comments
+            # });
       
