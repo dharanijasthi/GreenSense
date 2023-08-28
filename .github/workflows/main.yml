@@ -165,3 +165,19 @@ jobs:
                 base: sourceBranch, // "testbranch"
                 body: explanations
             });
+
+            const comments = updatedFiles.map(file => ({
+                path: file.path,
+                position: 1,  // This needs to be the line number where you want the comment
+                body: file.explanation
+            }));
+
+            // Create review comments for each file
+            await github.rest.pulls.createReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.data.number,  
+                commit_id: pr.data.head.sha,  
+                event: "COMMENT",  
+                comments: comments
+            });
