@@ -133,16 +133,17 @@ jobs:
                 base: sourceBranch, // "testbranch"
                 body: explanations
             });
-            const { owner, repo, number } = context.issue;
-            const { data: files } = await github.rest.pulls.listFiles({
-                owner, repo, pull_number: number
-            });
+            # const { owner, repo, number } = context.issue;
+            # const { data: files } = await github.rest.pulls.listFiles({
+            #     owner, repo, pull_number: number
+            # });
             const commitID = context.payload.pull_request.head.sha;
             for (const file of files) {
               if (file.filename.endsWith('.py')) {
                 await github.rest.pulls.createReviewComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
+                  pull_number: context.repo.number,
                   body: file.explanation,
                   path: file.filename,
                   commit_id: commitID,
