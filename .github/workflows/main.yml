@@ -228,19 +228,47 @@ jobs:
           script: |
     
             prNumber=process.env.prNumber
+            repoName=context.repo.repo
+            repoOwner=context.repo.owner
 
-            const diff = await github.rest.pulls.get({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: prNumber,
-                mediaType: {
-                    format: 'diff'
-                }
-            });
-            for (let key in diff) {
-                console.log(`${key}:`, diff[key]);
+            async function getDiff(prNumber) {
+                return new Promise((resolve, reject) => {
+                    const token = process.env.GITHUB_TOKEN;
+                    const options = {
+                        hostname: 'api.github.com',
+                        path: `/repos/${repoOwner}/${repoName}/pulls/${prNumber}.diff`,
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3.raw'
+                        }
+                    };
+        
+                    const req = https.request(options, res => {
+                        let responseBody = '';
+        
+                        res.on('data', chunk => {
+                            responseBody += chunk;
+                        });
+        
+                        res.on('end', () => {
+                            resolve(JSON.parse(responseBody));
+                        });
+                    });
+        
+                    req.on('error', error => {
+                        reject(error);
+                    });
+        
+                    req.write(JSON.stringify(requestData));
+                    req.end();
+                });
             }
-            const parsedDiff = require('parse-diff')(diff.data);
+            const prDiff = await getPRDiff(prNumber);
+            console.log(`prDiff: ${prDiff}`)
+
+            const parsedDiff = require('parse-diff')(prDiff);
             const updatedFiles=JSON.parse(process.env.updatedFiles)
 
             function getLineNumberForFunction(diffFile, functionName) {
