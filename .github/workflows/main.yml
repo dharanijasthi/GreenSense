@@ -134,6 +134,8 @@ jobs:
                 body: explanations
             });
             const prNumber = context.payload.pull_request.number;
+            for (const file of files) {
+              if (file.filename.endsWith('.py')) { 
               const prFiles = await github.rest.pulls.listFiles({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -153,7 +155,8 @@ jobs:
               position: file.changes,
               body: file.explanation
             }));
-
+            }
+            }
             await github.rest.pulls.createReview({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
