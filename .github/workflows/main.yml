@@ -153,7 +153,8 @@ jobs:
                 .filter(file => file.status === 'modified')
                 .map(file => ({
                   path: file.filename,
-                  position: file.patch.split('\n').length - 1
+                  position: file.patch.split('\n').length - 1,
+                  explanation: file.explanation
                 }));
               updatedFiles1.push(updatedFilesDict)
               console.log(updatedFilesDict);
@@ -162,7 +163,7 @@ jobs:
             console.log("updatedFiles1",updatedFiles1);
             const comments = updatedFiles1.map(file => ({
                 path: file.path,
-                position: file.changes,
+                position: file.position,
                 body: file.explanation
               }));
               console.log("coments",comments)
