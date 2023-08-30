@@ -134,10 +134,13 @@ jobs:
                 body: explanations
             });
             const prNumber = context.payload.pull_request.number;
-            const comments = updatedFiles.map(file => ({
-              console.log(file.changes)
+            const prFiles = updatedFiles.data
+              .filter(file => file.status === 'modified')
+              .map(file => ({
+                    path: file.filename,
+                    position: file.patch.split('\n').length - 1
             }));
-            const comments = updatedFiles.map(file => ({
+            const comments = prFiles.map(file => ({
               path: file.path,
               position: file.changes,
               body: file.explanation
