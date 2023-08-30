@@ -152,6 +152,7 @@ jobs:
               updatedFilesDict = prFiles.data
                 .filter(file => file.status === 'modified')
                 .map(file => ({
+                  console.log("file",file)
                   path: file.filename,
                   position: file.patch.split('\n').length - 1,
                   explanation: file.explanation
