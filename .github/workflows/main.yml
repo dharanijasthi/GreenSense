@@ -145,8 +145,7 @@ jobs:
               if (file.filename.endsWith('.py')) { 
               let updatedFilesDict = {}
               
-              updatedFilesDict = updatedFiles.data
-                .map(file => ({
+              updatedFilesDict = updatedFiles.map(file => ({
                   path: file.filename,
                   position: file.patch.split('\n').length - 1,
                   explanation: file.explanation
