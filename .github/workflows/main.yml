@@ -134,7 +134,10 @@ jobs:
                 body: explanations
             });
             const prNumber = context.payload.pull_request.number;
-            for (const file of updatedFiles) {
+            const { data: files } = await github.rest.pulls.listFiles({
+                owner, repo, pull_number: prNumber
+            });
+            for (const file of files) {
               if (file.filename.endsWith('.py')) { 
               const prFiles = await github.rest.pulls.listFiles({
                 owner: context.repo.owner,
