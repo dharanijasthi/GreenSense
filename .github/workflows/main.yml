@@ -168,7 +168,7 @@ jobs:
                     console.error("Error with OpenAI request:", error);
                 }
             }
-            console.log(updatedFiles)
+            console.log(JSON.stringify(updatedFiles))
             core.exportVariable('updatedFiles', updatedFiles);
 
       - name: Commit and Push to New Branch to New Branch
@@ -235,15 +235,15 @@ jobs:
             const flattenedComments = [];
             
             for (let filepath in updatedFiles) {
-                let functions = updatedFiles[filepath];
-                for (let func in functions) {
-                    let data = functions[func];
-                    flattenedComments.push({
-                        path: filepath,
-                        position: data[0], // This is the line number
-                        body: data[1]     // This is the explanation
-                    });
-                }
+              let functions = updatedFiles[filepath].explanation;
+              for (let func in functions) {
+                  let data = functions[func];
+                  flattenedComments.push({
+                      path: filepath,
+                      position: parseInt(data[0], 10), // Convert to integer if it's a string
+                      body: data[1] // This is the explanation
+                  });
+              }
             }
             
             // Create review comments for each file
