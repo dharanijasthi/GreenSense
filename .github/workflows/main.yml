@@ -133,6 +133,7 @@ jobs:
                 base: sourceBranch, // "testbranch"
                 body: explanations
             });
+            
             const prNumber = context.payload.pull_request.number;
             const { data: files } = await github.rest.pulls.listFiles({
               owner: context.repo.owner,
@@ -141,19 +142,20 @@ jobs:
             });
             let updatedFiles1=[]
             console.log("updatedFiles",updatedFiles)
-            for (const file of files) {
-              if (file.filename.endsWith('.py')) { 
               let updatedFilesDict = {}
-              
+              for(let file in updatedFiles){
+                const fileLines = Buffer.from(file.content, 'base64').toString().split('\n');
+                const lastLinePosition = fileLines.length;
+                file.push({position : lastLinePosition});
+              }
               updatedFilesDict = updatedFiles.map(file => ({
                   path: file.filename,
-                  position: file.patch.split('\n').length - 1,
+                  position: file.position,
                   explanation: file.explanation
                 }));
               updatedFiles1.push(updatedFilesDict)
               console.log(updatedFilesDict);
-              }
-            }
+              
             console.log("updatedFiles1",updatedFiles1);
             const comments = updatedFiles1.map(file => ({
                 path: file.path,
