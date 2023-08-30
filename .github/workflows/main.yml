@@ -55,26 +55,6 @@ jobs:
               return explanations;
             }
 
-            function findFunctionLineNumbers(codeStr, explanationsList) {
-                const lines = codeStr.split('\n');
-                const updatedExplanationsList = {};
-
-                explanationsList.forEach(explanationObj => {
-                    const func = Object.keys(explanationObj)[0]; // This retrieves the function name from the object
-                    const explanation = Object.values(explanationObj)[0];
-                    const pattern = new RegExp(`def ${func}\\(`);
-                    
-                    for (let i = 0; i < lines.length; i++) {
-                        if (pattern.test(lines[i])) {
-                            updatedExplanationsList[func] = [i + 1, explanation];
-                            break;  // exit the loop once the function is found
-                        }
-                    }
-                });
-
-                return updatedExplanationsList;
-            }
-
             async function makeOpenAIRequest(fileContent) {
                 return new Promise((resolve, reject) => {
                     const requestData = {
@@ -161,9 +141,8 @@ jobs:
                     fs.writeFileSync(file.filename, updatedCode, 'utf8');
                     
                     let explanations = get_function_explanations(explanation);
-                    let explanations_with_line_numbers = findFunctionLineNumbers(updatedCode, explanations)
 
-                    updatedFiles.push({ path: file.filename, explanation: explanations_with_line_numbers });
+                    updatedFiles.push({ path: file.filename, explanation: explanations });
                 } catch (error) {
                     console.error("Error with OpenAI request:", error);
                 }
@@ -231,22 +210,75 @@ jobs:
               prNumber = existingPRs.data[0].number;
             }
           
-            // Flatten the data structure to get a list of files with their corresponding line numbers and explanations
-            const flattenedComments = [];
-            
-            for (let file of updatedFiles) {
-              for (let [functionName, data] of Object.entries(file.explanation)) {
-                  let lineNumber = data[0];
-                  let explanation = data[1];
-          
-                  flattenedComments.push({
-                      path: file.path,
-                      position: lineNumber,
-                      body: explanation
-                  });
-              }
+            core.exportVariable('prNumber', prNumber);
+
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'  # You can specify a Node.js version of your choice
+
+      # Install parse-diff
+      - name: Install parse-diff
+        run: npm install parse-diff
+
+      - name: Create PR and Comment
+        uses: actions/github-script@v5
+        with:
+          script: |
+    
+            prNumber=process.env.prNumber
+
+            const diff = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+                mediaType: {
+                    format: 'diff'
+                }
+            });
+            const parsedDiff = require('parse-diff')(diff.data);
+            const updatedFiles=JSON.parse(process.env.updatedFiles)
+
+            function getLineNumberForFunction(diffFile, functionName) {
+                for (const chunk of diffFile.chunks) {
+                    for (const change of chunk.changes) {
+                        if (change.type === 'add' && change.content.includes(`def ${functionName}(`)) {
+                            return change.ln;
+                        }
+                    }
+                }
+                return null;
             }
-            
+
+            function generateComments(parsedDiffs, updatedFiles) {
+                const comments = [];
+
+                for (const diffFile of parsedDiffs) {
+                    const matchingFile = updatedFiles.find(f => f.path === diffFile.to);
+                    
+                    if (!matchingFile) continue;
+
+                    for (const explanation of matchingFile.explanation) {
+                        for (const [functionName, explanationText] of Object.entries(explanation)) {
+                            const lineNumber = getLineNumberForFunction(diffFile, functionName);
+                            if (lineNumber !== null) {
+                                comments.push({
+                                    path: diffFile.to,
+                                    position: lineNumber,
+                                    body: explanationText
+                                });
+                            }
+                        }
+                    }
+                }
+
+                return comments;
+            }
+
+            const comments = generateComments(parsedDiffs, updatedFiles);
+            console.log(comments);
+
             // Create review comments for each file
             await github.rest.pulls.createReview({
                 owner: context.repo.owner,
