@@ -163,7 +163,7 @@ jobs:
             console.log("updatedFiles1",updatedFiles1);
             const comments = updatedFiles1.map(file => ({
                 path: file.path,
-                position: file.changes,
+                position: file.position,
                 body: file.explanation
               }));
               console.log("coments",comments)
