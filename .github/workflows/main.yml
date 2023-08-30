@@ -141,28 +141,30 @@ jobs:
             });
             for (const file of files) {
               if (file.filename.endsWith('.py')) { 
+              updatedFilesDict = {}
               const prFiles = await github.rest.pulls.listFiles({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: prNumber
               });
 
-              const updatedFiles1 = prFiles.data
+              const updatedFilesDict = prFiles.data
                 .filter(file => file.status === 'modified')
                 .map(file => ({
                   path: file.filename,
                   position: file.patch.split('\n').length - 1
                 }));
-
+              updatedFiles1.push(updatedFilesDict)
+              console.log(updatedFilesDict);
               console.log(updatedFiles1);
-              const comments = updatedFiles1.map(file => ({
+              }
+            }
+            const comments = updatedFiles1.map(file => ({
                 path: file.path,
                 position: file.changes,
                 body: file.explanation
               }));
               console.log(comments)
-              }
-            }
             await github.rest.pulls.createReview({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
