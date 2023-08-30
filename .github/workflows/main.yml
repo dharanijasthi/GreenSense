@@ -226,7 +226,8 @@ jobs:
         uses: actions/github-script@v5
         with:
           script: |
-    
+            const https = require('https');
+            
             prNumber=process.env.prNumber
             repoName=context.repo.repo
             repoOwner=context.repo.owner
