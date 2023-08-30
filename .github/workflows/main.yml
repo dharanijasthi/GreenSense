@@ -139,6 +139,7 @@ jobs:
               repo: context.repo.repo,
               pull_number: prNumber
             });
+            let updatedFiles1=[]
             for (const file of files) {
               if (file.filename.endsWith('.py')) { 
               let updatedFilesDict = {}
