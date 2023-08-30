@@ -272,7 +272,7 @@ jobs:
             const parsedDiff = require('parse-diff')(prDiff);
             console.log('parsedDiff')
             for (let key in prDiff) {
-                console.log(`${key}:`, diff.data[key]);
+                console.log(`${key}:`, prDiff[key]);
             }
 
             const updatedFiles=JSON.parse(process.env.updatedFiles)
@@ -295,7 +295,7 @@ jobs:
                     const matchingFile = updatedFiles.find(f => f.path === diffFile.to);
                     console.log('matchingFile')
                     for (let key in matchingFile) {
-                        console.log(`${key}:`, diff.data[key]);
+                        console.log(`${key}:`, prDiff[key]);
                     }
                     if (!matchingFile) continue;
 
