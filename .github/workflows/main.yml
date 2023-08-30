@@ -145,7 +145,6 @@ jobs:
               let updatedFilesDict = {}
               
               updatedFilesDict = updatedFiles.data
-                .filter(file => file.status === 'modified')
                 .map(file => ({
                   path: file.filename,
                   position: file.patch.split('\n').length - 1,
