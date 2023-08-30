@@ -133,21 +133,3 @@ jobs:
                 base: sourceBranch, // "testbranch"
                 body: explanations
             });
-            PR_NUMBER=$(jq -r '.number' "$GITHUB_EVENT_PATH")
-            const { data: files } = await github.rest.pulls.listFiles({
-                owner, repo, pull_number: number
-            });
-            const commitID = context.payload.pull_request.head.sha;
-            for (const file of updatedFiles) {
-              if (file.filename.endsWith('.py')) {
-                await github.rest.pulls.createReviewComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: PR_NUMBER,
-                  body: file.explanation,
-                  path: file.filename,
-                  commit_id: commitID,
-                  position: 1
-                });
-              }
-            }
