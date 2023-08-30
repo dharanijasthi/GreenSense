@@ -240,7 +240,7 @@ jobs:
                         path: `/repos/${repoOwner}/${repoName}/pulls/${prNumber}.diff`,
                         method: 'GET',
                         headers: {
-                            'Content-Type': 'application/json',
+                            'User-Agent': 'NodeJS',
                             'Authorization': `token ${token}`,
                             'Accept': 'application/vnd.github.v3.raw'
                         }
@@ -254,15 +254,14 @@ jobs:
                         });
         
                         res.on('end', () => {
-                            resolve(JSON.parse(responseBody));
+                            resolve(responseBody);
                         });
                     });
         
                     req.on('error', error => {
                         reject(error);
                     });
-        
-                    req.write(JSON.stringify(requestData));
+
                     req.end();
                 });
             }
