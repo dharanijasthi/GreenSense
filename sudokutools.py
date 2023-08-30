@@ -2,66 +2,46 @@ File: sudokutools.py
 
 Updated Code:
 
-from random import randint, shuffle
+
+from random import shuffle
 from multiprocessing import Pool
 
 def print_board(board):
-    """
-    Prints the sudoku board.
-
-    Args:
-        board (list[list[int]]): A 9x9 sudoku board represented as a list of lists of integers.
-
-    Returns:
-        None.
-    """
-
     boardString = ""
     for i in range(9):
         for j in range(9):
             boardString += str(board[i][j]) + " "
             if (j + 1) % 3 == 0 and j != 0 and j + 1 != 9:
                 boardString += "| "
-
-            if j == 8:
-                boardString += "\n"
-
-            if j == 8 and (i + 1) % 3 == 0 and i + 1 != 9:
-                boardString += "- - - - - - - - - - - \n"
+        boardString += "\n"
+        if (i + 1) % 3 == 0 and i + 1 != 9:
+            boardString += "- - - - - - - - - - - \n"
     print(boardString)
 
 
-def find_empty(board):
-    """
-    Finds an empty cell in the sudoku board.
-
-    Args:
-        board (list[list[int]]): A 9x9 sudoku board represented as a list of lists of integers.
-
-    Returns:
-        tuple[int, int]|None: The position of the first empty cell found as a tuple of row and column indices, or None if no empty cell is found.
-    """
-
+def solve(board):
+    empty = None
     for i in range(9):
         for j in range(9):
             if board[i][j] == 0:
-                return (i, j)
-    return None
+                empty = (i, j)
+                break
+        if empty:
+            break
+    if not empty:
+        return True
+
+    for num in range(1, 10):
+        if valid(board, empty, num):
+            board[empty[0]][empty[1]] = num
+
+            if solve(board):
+                return True
+            board[empty[0]][empty[1]] = 0
+    return False
 
 
 def valid(board, pos, num):
-    """
-    Checks whether a number is valid in a cell of the sudoku board.
-
-    Args:
-        board (list[list[int]]): A 9x9 sudoku board represented as a list of lists of integers.
-        pos (tuple[int, int]): The position of the cell to check as a tuple of row and column indices.
-        num (int): The number to check.
-
-    Returns:
-        bool: True if the number is valid in the cell, False otherwise.
-    """
-
     for i in range(9):
         if board[i][pos[1]] == num:
             return False
@@ -79,87 +59,28 @@ def valid(board, pos, num):
     return True
 
 
-def solve(board):
-    """
-    Solves the sudoku board using the backtracking algorithm.
-
-    Args:
-        board (list[list[int]]): A 9x9 sudoku board represented as a list of lists of integers.
-
-    Returns:
-        bool: True if the sudoku board is solvable, False otherwise.
-    """
-
-    empty = find_empty(board)
-    if not empty:
-        return True
-
-    for nums in range(1, 10):
-        if valid(board, empty, nums):
-            board[empty[0]][empty[1]] = nums
-
-            if solve(board):  # recursive step
-                return True
-            board[empty[0]][empty[1]] = 0  # this number is wrong so we set it back to 0
-    return False
-
-
-def fill_cells(board, row, col):
-    """
-    Fills the remaining cells of the sudoku board with backtracking.
-
-    Args:
-        board (list[list[int]]): A 9x9 sudoku board represented as a list of lists of integers.
-        row (int): The current row index to fill.
-        col (int): The current column index to fill.
-
-    Returns:
-        bool: True if the remaining cells are successfully filled, False otherwise.
-    """
-
-    if row == 9:
-        return True
-    if col == 9:
-        return fill_cells(board, row + 1, 0)
-
-    if board[row][col] != 0:
-        return fill_cells(board, row, col + 1)
-
-    for num in range(1, 10):
-        if valid(board, (row, col), num):
-            board[row][col] = num
-
-            if fill_cells(board, row, col + 1):
-                return True
-
-    board[row][col] = 0
-    return False
-
-
 def generate_board():
-    """
-    Generates a random sudoku board with fewer initial numbers.
-
-    Returns:
-        list[list[int]]: A 9x9 sudoku board represented as a list of lists of integers.
-    """
-
     board = [[0 for i in range(9)] for j in range(9)]
 
-    # Fill the diagonal boxes
     for i in range(0, 9, 3):
-        nums = list(range(1, 10))
+        nums = [1, 2, 3, 4, 5, 6, 7, 8, 9]
         shuffle(nums)
         for row in range(3):
             for col in range(3):
                 board[i + row][i + col] = nums.pop()
 
-    # Fill the remaining cells with backtracking
-    fill_cells(board, 0, 0)
+    for row in range(9):
+        for col in range(9):
+            if board[row][col] == 0:
+                nums = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                for num in nums:
+                    if valid(board, (row, col), num):
+                        board[row][col] = num
+                        break
 
-    # Remove a greater number of cells to create a puzzle with fewer initial numbers
-    for _ in range(randint(55, 65)):
-        row, col = randint(0, 8), randint(0, 8)
+    for _ in range(55, 65):
+        row = _ % 9
+        col = (_ // 9) % 9
         board[row][col] = 0
 
     return board
@@ -172,7 +93,9 @@ if __name__ == "__main__":
     print_board(board)
 
 
+
 Explanation:
+
 
 1. Removed unnecessary imports and functions.
 2. Removed unnecessary checks in the print_board function.
@@ -186,5 +109,6 @@ Explanation:
 10. Improved the code readability and removed unnecessary comments.
 11. The time complexity of the original code is O(9^(n^2)), where n is the size of the sudoku board (9 in this case).
 12. The time complexity of the optimized code is O(1) because the size of the sudoku board is fixed.
+
 
 
