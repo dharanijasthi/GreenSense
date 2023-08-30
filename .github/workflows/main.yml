@@ -251,10 +251,10 @@ jobs:
                 return null;
             }
 
-            function generateComments(parsedDiffs, updatedFiles) {
+            function generateComments(parsedDiff, updatedFiles) {
                 const comments = [];
 
-                for (const diffFile of parsedDiffs) {
+                for (const diffFile of parsedDiff) {
                     const matchingFile = updatedFiles.find(f => f.path === diffFile.to);
                     
                     if (!matchingFile) continue;
@@ -276,7 +276,7 @@ jobs:
                 return comments;
             }
 
-            const comments = generateComments(parsedDiffs, updatedFiles);
+            const comments = generateComments(parsedDiff, updatedFiles);
             console.log(comments);
 
             // Create review comments for each file
