@@ -152,13 +152,7 @@ jobs:
             } catch (error) {
                 console.error(error);
             }
-            const prFiles = updatedFiles1.data
-              .filter(file => file.status === 'modified')
-              .map(file => ({
-                    path: file.filename,
-                    position: file.patch.split('\n').length - 1
-            }));
-            const comments = prFiles.map(file => ({
+            const comments = updatedFiles1.map(file => ({
               path: file.path,
               position: file.changes,
               body: file.explanation
