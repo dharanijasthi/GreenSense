@@ -256,11 +256,14 @@ jobs:
 
                 for (const diffFile of parsedDiff) {
                     const matchingFile = updatedFiles.find(f => f.path === diffFile.to);
-                    
+                    console.log(`matching file ${matchingFile}`)
                     if (!matchingFile) continue;
 
                     for (const explanation of matchingFile.explanation) {
                         for (const [functionName, explanationText] of Object.entries(explanation)) {
+                            console.log(`functionName ${functionName}`)
+                            console.log(`explanationText ${explanationText}`)
+
                             const lineNumber = getLineNumberForFunction(diffFile, functionName);
                             if (lineNumber !== null) {
                                 comments.push({
