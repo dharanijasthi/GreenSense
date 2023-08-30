@@ -224,6 +224,8 @@ jobs:
 
       - name: Create PR and Comment
         uses: actions/github-script@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           script: |
             const https = require('https');
@@ -234,7 +236,7 @@ jobs:
 
             async function getPRDiff(prNumber) {
                 return new Promise((resolve, reject) => {
-                    const token = ${{ secrets.GITHUB_TOKEN }};
+                    const token = process.env.GITHUB_TOKEN;
                     const options = {
                         hostname: 'api.github.com',
                         path: `/repos/${repoOwner}/${repoName}/pulls/${prNumber}.diff`,
