@@ -133,6 +133,7 @@ jobs:
                 base: sourceBranch, // "testbranch"
                 body: explanations
             });
+            const prNumber = context.payload.pull_request.number;
             const comments = updatedFiles.map(file => ({
               path: file.path,
               position: file.changes,
