@@ -133,3 +133,11 @@ jobs:
                 base: sourceBranch, // "testbranch"
                 body: explanations
             });
+            const prNumber = context.payload.pull_request.number;
+            const review = await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              body: 'Review comment goes here',
+              event: 'COMMENT',
+            });
