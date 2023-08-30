@@ -153,7 +153,8 @@ jobs:
                 .filter(file => file.status === 'modified')
                 .map(file => ({
                   path: file.filename,
-                  position: file.patch.split('\n').length - 1
+                  position: file.patch.split('\n').length - 1,
+                  explanation: file.explanation
                 }));
               updatedFiles1.push(updatedFilesDict)
               console.log(updatedFilesDict);
