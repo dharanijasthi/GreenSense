@@ -253,6 +253,7 @@ jobs:
 
             function generateComments(parsedDiff, updatedFiles) {
                 const comments = [];
+                console.log(`parsedDiff ${parsedDiff}`)
 
                 for (const diffFile of parsedDiff) {
                     const matchingFile = updatedFiles.find(f => f.path === diffFile.to);
@@ -288,6 +289,6 @@ jobs:
                 repo: context.repo.repo,
                 pull_number: prNumber,  
                 event: "COMMENT",  
-                comments: flattenedComments
+                comments: comments
             });
             
