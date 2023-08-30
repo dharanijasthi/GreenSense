@@ -134,7 +134,6 @@ jobs:
                 body: explanations
             });
             const prNumber = context.payload.pull_request.number;
-            try{
               const prFiles = await github.rest.pulls.listFiles({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -145,13 +144,10 @@ jobs:
                 .filter(file => file.status === 'modified')
                 .map(file => ({
                   path: file.filename,
-                  position: file.patch.split('\n').length - 1 // Get the number of lines changed
+                  position: file.patch.split('\n').length - 1
                 }));
 
               console.log(updatedFiles1);
-            } catch (error) {
-                console.error(error);
-            }
             const comments = updatedFiles1.map(file => ({
               path: file.path,
               position: file.changes,
@@ -161,7 +157,7 @@ jobs:
             await github.rest.pulls.createReview({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                pull_number: prNumber,  
-                event: "COMMENT",  
+                pull_number: prNumber,
+                event: "COMMENT",
                 comments: comments
             });
