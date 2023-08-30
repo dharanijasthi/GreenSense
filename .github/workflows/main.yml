@@ -155,12 +155,13 @@ jobs:
                 }));
 
               console.log(updatedFiles1);
-            const comments = updatedFiles1.map(file => ({
-              path: file.path,
-              position: file.changes,
-              body: file.explanation
-            }));
-            }
+              const comments = updatedFiles1.map(file => ({
+                path: file.path,
+                position: file.changes,
+                body: file.explanation
+              }));
+              console.log(comments)
+              }
             }
             await github.rest.pulls.createReview({
                 owner: context.repo.owner,
