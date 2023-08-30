@@ -238,8 +238,8 @@ jobs:
                 return new Promise((resolve, reject) => {
                     const token = process.env.GITHUB_TOKEN;
                     const options = {
-                        hostname: 'api.github.com',
-                        path: `/repos/${repoOwner}/${repoName}/pulls/${prNumber}.diff`,
+                        hostname: 'patch-diff.githubusercontent.com',
+                        path: `/raw/${repoOwner}/${repoName}/pull/${prNumber}.diff`,
                         method: 'GET',
                         headers: {
                             'User-Agent': 'NodeJS',
