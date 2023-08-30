@@ -140,6 +140,7 @@ jobs:
               pull_number: prNumber
             });
             let updatedFiles1=[]
+            console.log("updatedFiles",updatedFiles)
             for (const file of files) {
               if (file.filename.endsWith('.py')) { 
               let updatedFilesDict = {}
