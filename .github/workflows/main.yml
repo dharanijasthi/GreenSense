@@ -146,6 +146,7 @@ jobs:
               for(let file in updatedFiles){
                 const fileLines = Buffer.from(file.content, 'base64').toString().split('\n');
                 const lastLinePosition = fileLines.length;
+                console.log("lastLinePosition", lastLinePosition)
                 file.push({position : lastLinePosition});
               }
               console.log("updatedFiles",updatedFiles)
