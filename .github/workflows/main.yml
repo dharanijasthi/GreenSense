@@ -142,14 +142,14 @@ jobs:
             const updatedFilesDict = {}
             for (const file of files) {
               if (file.filename.endsWith('.py')) { 
-              const updatedFilesDict = {}
+              updatedFilesDict = {}
               const prFiles = await github.rest.pulls.listFiles({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: prNumber
               });
 
-              const updatedFilesDict = prFiles.data
+              updatedFilesDict = prFiles.data
                 .filter(file => file.status === 'modified')
                 .map(file => ({
                   path: file.filename,
