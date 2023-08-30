@@ -134,7 +134,25 @@ jobs:
                 body: explanations
             });
             const prNumber = context.payload.pull_request.number;
-            const prFiles = updatedFiles.data
+            try{
+              const prFiles = await github.rest.pulls.listFiles({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber
+              });
+
+              const updatedFiles1 = prFiles.data
+                .filter(file => file.status === 'modified')
+                .map(file => ({
+                  path: file.filename,
+                  position: file.patch.split('\n').length - 1 // Get the number of lines changed
+                }));
+
+              console.log(updatedFiles1);
+            } catch (error) {
+                console.error(error);
+            }
+            const prFiles = updatedFiles1.data
               .filter(file => file.status === 'modified')
               .map(file => ({
                     path: file.filename,
