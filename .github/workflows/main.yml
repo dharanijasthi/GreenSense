@@ -141,7 +141,7 @@ jobs:
             });
             for (const file of files) {
               if (file.filename.endsWith('.py')) { 
-              updatedFilesDict = {}
+              const updatedFilesDict = {}
               const prFiles = await github.rest.pulls.listFiles({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
