@@ -141,13 +141,14 @@ jobs:
               pull_number: prNumber
             });
             let updatedFiles1=[]
-            console.log("updatedFiles",updatedFiles)
+            
               let updatedFilesDict = {}
               for(let file in updatedFiles){
                 const fileLines = Buffer.from(file.content, 'base64').toString().split('\n');
                 const lastLinePosition = fileLines.length;
                 file.push({position : lastLinePosition});
               }
+              console.log("updatedFiles",updatedFiles)
               updatedFilesDict = updatedFiles.map(file => ({
                   path: file.filename,
                   position: file.position,
