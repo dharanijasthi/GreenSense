@@ -237,6 +237,7 @@ jobs:
                     format: 'diff'
                 }
             });
+            console.log(`diff.data ${diff.data}`)
             const parsedDiff = require('parse-diff')(diff.data);
             const updatedFiles=JSON.parse(process.env.updatedFiles)
 
