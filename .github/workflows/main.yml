@@ -135,16 +135,14 @@ jobs:
             });
             const comments = updatedFiles.map(file => ({
               path: file.path,
-              position: file.position !== null ? file.position + 1 : null,
+              position: file.changes,
               body: file.explanation
             }));
 
-            const filteredComments = comments.filter(comment => comment.position !== null);
-
             await github.rest.pulls.createReview({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: pr.data.number,
-              commit_id: pr.data.head.sha,
-              comments: filteredComments
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,  
+                event: "COMMENT",  
+                comments: comments
             });
