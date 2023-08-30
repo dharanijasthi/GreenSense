@@ -157,15 +157,15 @@ jobs:
                 }));
               updatedFiles1.push(updatedFilesDict)
               console.log(updatedFilesDict);
-              console.log(updatedFiles1);
               }
             }
+            console.log("updatedFiles1",updatedFiles1);
             const comments = updatedFiles1.map(file => ({
                 path: file.path,
                 position: file.changes,
                 body: file.explanation
               }));
-              console.log(comments)
+              console.log("coments",comments)
             await github.rest.pulls.createReview({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
