@@ -135,6 +135,9 @@ jobs:
             });
             const prNumber = context.payload.pull_request.number;
             const comments = updatedFiles.map(file => ({
+              console.log(file.changes)
+            }));
+            const comments = updatedFiles.map(file => ({
               path: file.path,
               position: file.changes,
               body: file.explanation
