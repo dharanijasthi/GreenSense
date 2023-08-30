@@ -138,6 +138,25 @@ jobs:
               position: file.position !== null ? file.position + 1 : null,
               body: file.explanation
             }));
+            await Promise.all(comments.map(async comment => {
+              const { data: commits } = await github.rest.pulls.listCommits({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.data.number
+              });
+              const commitSha = commits[0].sha;
+              const { data: fileContent } = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: comment.path,
+                ref: commitSha
+              });
+              const fileLines = Buffer.from(fileContent.content, 'base64').toString('utf-8').split('\n');
+              const lineNumber = fileLines.findIndex(line => line.includes(comment.body)) + 1;
+              if (lineNumber !== -1) {
+                    comment.position = lineNumber;
+              }
+            }));
             await github.rest.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
