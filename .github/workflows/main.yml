@@ -268,9 +268,13 @@ jobs:
                 });
             }
             const prDiff = await getPRDiff(prNumber);
-            console.log(`prDiff: ${prDiff}`)
 
             const parsedDiff = require('parse-diff')(prDiff);
+            console.log('parsedDiff')
+            for (let key in prDiff) {
+                console.log(`${key}:`, diff.data[key]);
+            }
+
             const updatedFiles=JSON.parse(process.env.updatedFiles)
 
             function getLineNumberForFunction(diffFile, functionName) {
@@ -286,18 +290,17 @@ jobs:
 
             function generateComments(parsedDiff, updatedFiles) {
                 const comments = [];
-                console.log(`parsedDiff ${parsedDiff}`)
 
                 for (const diffFile of parsedDiff) {
                     const matchingFile = updatedFiles.find(f => f.path === diffFile.to);
-                    console.log(`matching file ${matchingFile}`)
+                    console.log('matchingFile')
+                    for (let key in matchingFile) {
+                        console.log(`${key}:`, diff.data[key]);
+                    }
                     if (!matchingFile) continue;
 
                     for (const explanation of matchingFile.explanation) {
                         for (const [functionName, explanationText] of Object.entries(explanation)) {
-                            console.log(`functionName ${functionName}`)
-                            console.log(`explanationText ${explanationText}`)
-
                             const lineNumber = getLineNumberForFunction(diffFile, functionName);
                             if (lineNumber !== null) {
                                 comments.push({
@@ -314,7 +317,7 @@ jobs:
             }
 
             const comments = generateComments(parsedDiff, updatedFiles);
-            console.log(comments);
+            console.log(`comments: ${comments}`);
 
             // Create review comments for each file
             await github.rest.pulls.createReview({
