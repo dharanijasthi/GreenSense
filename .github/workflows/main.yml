@@ -149,7 +149,8 @@ jobs:
                 const patch = file.patch;
                 const lines = patch.split('\n');
                 console.log("lines",lines)
-                const positionStart = lines[2].match(/\-(\d+)/)[1];
+                const positionStart = patch.match(/@@ -\d+,\d+ \+(\d+),\d+ @@/)[1];
+                const positionEnd = parseInt(positionStart) + patch.split('\n').length - 1;
                 console.log("positionStart",positionStart)
                 updtfile.position = positionStart;
               }
