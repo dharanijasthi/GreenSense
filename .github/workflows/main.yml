@@ -172,10 +172,22 @@ jobs:
                 body: file.explanation
               }));
               console.log("coments",comments)
-            await github.rest.pulls.createReview({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: prNumber,
-                event: "COMMENT",
-                comments: comments
-            });
+              const createPullRequestReview = async (owner, repo, prNumber, comments) => {
+                try {
+                  const response = await octokit.request("POST /repos/{owner}/{repo}/pulls/{pull_number}/reviews", {
+                    owner,
+                    repo,
+                    pull_number: prNumber,
+                    event: "COMMENT",
+                    comments
+                  });
+              
+                  console.log("Pull request review created successfully.");
+                  console.log(response.data);
+                } catch (error) {
+                  console.error("Failed to create pull request review.");
+                  console.error(error);
+                }
+              };
+              
+              createPullRequestReview(owner, repo, prNumber, comments);
