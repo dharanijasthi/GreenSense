@@ -218,7 +218,8 @@ jobs:
                 commentBody += generateTableForFile(file, fileData);
                 commentBody += "\n\n";  // Add some space between tables
             }
-
+            
+            console.log(`comments: \n ${commentBody}`)
             // Check if a PR already exists for the branch
             const existingPRs = await github.rest.pulls.list({
                 owner: context.repo.owner,
@@ -248,7 +249,7 @@ jobs:
                   pull_number: prNumber,  
                   event: "COMMENT",  
                   comments: commentBody
-                );
+                });
             }
           
             core.exportVariable('prNumber', prNumber);
