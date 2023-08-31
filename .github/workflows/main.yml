@@ -88,9 +88,10 @@ jobs:
                     if (explanationMatch && explanationMatch[1]) {
                         explanation = explanationMatch[1];
                     }
-                    updatedFiles.push({ path: file.filename, explanation: explanation });
-                    const updatedContent = `File: ${file.filename}\n\nUpdated Code:\n${updatedCode}\n\nExplanation:\n${explanation}\n\n`;
                     fs.writeFileSync(file.filename, updatedContent, 'utf8');
+                    let explanations = get_function_explanations(explanation);
+
+                    updatedFiles.push({ path: file.filename, explanation: explanations });
                 } catch (error) {
                     console.error("Error with OpenAI request:", error);
                 }
