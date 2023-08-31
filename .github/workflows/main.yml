@@ -146,9 +146,8 @@ jobs:
               for (let file of updatedFiles) {
                 console.log("file content",file.content)
                 if (file.content) {
-                  const fileLines = Buffer.from(file.content, 'base64').toString().split('\n');
-                  const lastLinePosition = fileLines.length;
-                  file.position= lastLinePosition ;
+                  const lastLinePosition = file.content.lastIndexOf('\n') + 1;
+                  file.position = lastLinePosition;
                 } else {
                     console.log("error")
                     file.position= 1 ;
