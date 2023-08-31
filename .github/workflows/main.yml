@@ -157,21 +157,14 @@ jobs:
               }
             }
               console.log("updatedFiles",updatedFiles)
-              updatedFilesDict = updatedFiles.map(file => ({
-                  path: file.path,
-                  position: file.position,
-                  explanation: file.explanation
-                }));
-              updatedFiles1.push(updatedFilesDict)
-              console.log(updatedFilesDict);
-              
-            console.log("updatedFiles1",updatedFiles1);
             const comments = updatedFiles.map(file => ({
                 path: file.path,
                 position: file.position,
                 body: file.explanation
               }));
               console.log("coments",comments)
+              owner = context.repo.owner;
+              repo = context.repo.repo;
               const createPullRequestReview = async (owner, repo, prNumber, comments) => {
                 try {
                   const response = await octokit.request("POST /repos/{owner}/{repo}/pulls/{pull_number}/reviews", {
