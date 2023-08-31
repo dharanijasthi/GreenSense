@@ -196,12 +196,17 @@ jobs:
             const optimisedBranch = `Green-${sourceBranch}`;
 
             updatedFiles=JSON.parse(process.env.updatedFiles)
+            console.log('updated files')
             star_ratings=JSON.parse(process.env.star_ratings)
+            console.log('star ratings')
+
             old_pr_score=process.env.old_pr_score
             new_pr_score=process.env.new_pr_score
             old_pr_star_rating=process.env.old_pr_star_rating
             new_pr_star_rating=process.env.new_pr_star_rating
             
+            console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
+
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData) {
                 let table = `### ${file}:\n\n`;
