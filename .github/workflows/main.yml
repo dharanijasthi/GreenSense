@@ -157,7 +157,7 @@ jobs:
                 await github.rest.pulls.createReview({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
-                    pull_number: prNumber,
+                    pull_number: 148,
                     event: "COMMENT",
                     comments: comments.map(comment => ({
                       path: comment.path,
