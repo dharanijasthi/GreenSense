@@ -28,6 +28,33 @@ jobs:
         
             const { owner, repo, number } = context.issue;
         
+            const prompt = `
+            Your task is to optimize the provided code. Improve its speed and time complexity. Improve its algorithmic efficiency. Some optimizations may include connection pooling, inbuilt functions, parallel processing. The response should strictly follow this structure:
+
+            First, begin with the string [CODE_START], followed by the optimized code, and then [CODE_END]. After that, begin with [EXPLANATION_START]. For each function you've optimized, start the explanation with the function name followed by its description of optimization. Please make sure each function's explanation is on a new line. Do not include the time complexities of the original or optimized code in the explanation section. Conclude with [EXPLANATION_END].
+            
+            For example:
+            [EXPLANATION_START]
+            function1(): Use the list() function with range() to create the large list efficiently.
+            function2(): Use the math.factorial() function to calculate the factorial of a number.
+            function3(): Use a loop to calculate the Fibonacci sequence iteratively, which is more efficient.
+            [EXPLANATION_END]`
+
+            
+            function get_function_explanations(explanation) {
+              const functionPattern = /(\w+)\(\):\s*([\s\S]*?(?=\w+\(\):|$))/g;
+
+              let match;
+              let explanations = [];
+              
+              while ((match = functionPattern.exec(explanation)) !== null) {
+                  const functionName = match[1];
+                  const functionExplanation = match[2].trim(); // Trimming to remove any trailing or leading whitespace
+                  explanations.push({ [functionName]: functionExplanation });
+              }
+              return explanations;
+            }
+
             async function makeOpenAIRequest(fileContent) {
                 return new Promise((resolve, reject) => {
                     const requestData = {
@@ -36,11 +63,11 @@ jobs:
                         messages: [
                             {
                               "role": "system",
-                              "content": "Your task is to optimize the provided code. Improve its speed and time complexity. Improve its algorithmic efficiency. Some optimisations may include connection pooling, inbuilt functions, parallel processing. The response should strictly follow this format: Start with the string [CODE_START], then the optimized code, followed by [CODE_END]. After that, start with [EXPLANATION_START], provide one line explanation of the optimisation and provide the complexities of the original code and complexities of the optimized code, and end with [EXPLANATION_END]."
+                              "content": prompt
                             },
                             {
                               "role": "user",
-                              "content": "Optimize this code: " + fileContent
+                              "content": fileContent
                             }
                         ]
                     };
@@ -112,16 +139,18 @@ jobs:
         
                     // Write new content to file
                     fs.writeFileSync(file.filename, updatedCode, 'utf8');
-        
-                    updatedFiles.push({ path: file.filename, explanation: explanation });
+                    
+                    let explanations = get_function_explanations(explanation);
+
+                    updatedFiles.push({ path: file.filename, explanation: explanations, newCode: updatedCode, oldCode: fileContent  });
                 } catch (error) {
                     console.error("Error with OpenAI request:", error);
                 }
             }
-
+            console.log(JSON.stringify(updatedFiles))
             core.exportVariable('updatedFiles', updatedFiles);
 
-      - name: Commit and Push to New Branch
+      - name: Commit and Push to New Branch to New Branch
         run: |
             # Extract the source branch name
             SOURCE_BRANCH=$GITHUB_HEAD_REF
@@ -154,14 +183,147 @@ jobs:
             updatedFiles=JSON.parse(process.env.updatedFiles)
 
             // Combine explanations and create a comment on the new PR
-            const explanations = updatedFiles.map(file => `File: ${file.path}\nExplanation: ${file.explanation}`).join("\n\n");
+            const mainPRComment = '5 stars'
 
-            // Create a PR
-            const pr = await github.rest.pulls.create({
+            // Check if a PR already exists for the branch
+            const existingPRs = await github.rest.pulls.list({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                title: `GreenSense optimisations for ${sourceBranch}`,
-                head: optimisedBranch, // "optimised-testbranch"
-                base: sourceBranch, // "testbranch"
-                body: explanations
+                head: `${context.repo.owner}:${optimisedBranch}`
             });
+
+            let prNumber = null
+            // If no PRs found for the branch, create one
+            if (existingPRs.data.length === 0) {
+              // Create a PR
+              pr = await github.rest.pulls.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: `GreenSense optimisations for ${sourceBranch}`,
+                  head: optest_sourcetimisedBranch, // "optimised-testbranch"
+                  base: sourceBranch, // "testbranch"
+                  body: mainPRComment
+              });
+              prNumber = pr.data.number
+            }
+            else {
+              prNumber = existingPRs.data[0].number;
+            }
+          
+            core.exportVariable('prNumber', prNumber);
+
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'  # You can specify a Node.js version of your choice
+
+      # Install parse-diff
+      - name: Install parse-diff
+        run: npm install parse-diff
+
+      - name: Create PR and Comment
+        uses: actions/github-script@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          script: |
+            const https = require('https');
+            
+            prNumber=process.env.prNumber
+            repoName=context.repo.repo
+            repoOwner=context.repo.owner
+
+            async function getPRDiff(prNumber) {
+                return new Promise((resolve, reject) => {
+                    const token = process.env.GITHUB_TOKEN;
+                    const options = {
+                        hostname: 'patch-diff.githubusercontent.com',
+                        path: `/raw/${repoOwner}/${repoName}/pull/${prNumber}.diff`,
+                        method: 'GET',
+                        headers: {
+                            'User-Agent': 'NodeJS',
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3.raw'
+                        }
+                    };
+        
+                    const req = https.request(options, res => {
+                        let responseBody = '';
+        
+                        res.on('data', chunk => {
+                            responseBody += chunk;
+                        });
+        
+                        res.on('end', () => {
+                            resolve(responseBody);
+                        });
+                    });
+        
+                    req.on('error', error => {
+                        reject(error);
+                    });
+
+                    req.end();
+                });
+            }
+            const prDiff = await getPRDiff(prNumber);
+
+            const parsedDiff = require('parse-diff')(prDiff);
+            console.log('parsedDiff')
+            for (let key in prDiff) {
+                console.log(`${key}:`, prDiff[key]);
+            }
+
+            const updatedFiles=JSON.parse(process.env.updatedFiles)
+
+            function getLineNumberForFunction(diffFile, functionName) {
+                for (const chunk of diffFile.chunks) {
+                    for (const change of chunk.changes) {
+                        if (change.type === 'add' && change.content.includes(`def ${functionName}(`)) {
+                            return change.ln;
+                        }
+                    }
+                }
+                return null;
+            }
+
+            function generateComments(parsedDiff, updatedFiles) {
+                const comments = [];
+
+                for (const diffFile of parsedDiff) {
+                    const matchingFile = updatedFiles.find(f => f.path === diffFile.to);
+                    console.log('matchingFile')
+                    for (let key in matchingFile) {
+                        console.log(`${key}:`, prDiff[key]);
+                    }
+                    if (!matchingFile) continue;
+
+                    for (const explanation of matchingFile.explanation) {
+                        for (const [functionName, explanationText] of Object.entries(explanation)) {
+                            const lineNumber = getLineNumberForFunction(diffFile, functionName);
+                            if (lineNumber !== null) {
+                                comments.push({
+                                    path: diffFile.to,
+                                    position: lineNumber,
+                                    body: explanationText
+                                });
+                            }
+                        }
+                    }
+                }
+
+                return comments;
+            }
+
+            const comments = generateComments(parsedDiff, updatedFiles);
+            console.log(`comments: ${comments}`);
+
+            // Create review comments for each file
+            // await github.rest.pulls.createReview({
+                //     owner: context.repo.owner,
+                //     repo: context.repo.repo,
+                //     pull_number: prNumber,  
+                //     event: "COMMENT",  
+                //     comments: comments
+                // });
