@@ -162,12 +162,16 @@ jobs:
                 body: JSON.stringify(file.explanation)
               }));
               console.log("coments",comments)
-              const commentBodies = comments.map(comment => ({ body: comment.body }));
+
             console.log(context.repo.owner,context.repo.repo,prNumber)
             await github.rest.pulls.createReview({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   pull_number: prNumber,
                   event: "COMMENT",
-                  comments: commentBodies
+                  comments: comments.map(comment => ({
+                    path: comment.path,
+                    position: comment.position,
+                    body: comment.body
+                  }))
                 });
