@@ -197,12 +197,27 @@ jobs:
 
             updatedFiles=JSON.parse(process.env.updatedFiles)
             star_ratings=JSON.parse(process.env.star_ratings)
-            for (let key in star_ratings) {
-                    console.log(`${key}:`, star_ratings[key]);
+            
+            
+            // Function to generate the markdown table for a single file
+            function generateTableForFile(file, functionsData) {
+                let table = `### ${file}:\n\n`;
+                table += "| Function | Old Score | New Score | Old Rating | New Rating |\n";
+                table += "|----------|-----------|-----------|------------|------------|\n";
+
+                for (const [funcName, funcData] of Object.entries(functionsData)) {
+                table += `| ${funcName} | ${funcData.old_score} | ${funcData.new_score} | ${funcData.old_star_rating} | ${funcData.new_star_rating} |\n`;
                 }
 
-            // Combine explanations and create a comment on the new PR
-            const mainPRComment = '5 stars'
+                return table;
+            }
+
+            let commentBody = "## Metrics\n\n";
+
+            for (const [file, fileData] of Object.entries(star_ratings)) {
+                commentBody += generateTableForFile(file, fileData);
+                commentBody += "\n\n";  // Add some space between tables
+            }
 
             // Check if a PR already exists for the branch
             const existingPRs = await github.rest.pulls.list({
@@ -221,12 +236,19 @@ jobs:
                   title: `GreenSense optimisations for ${sourceBranch}`,
                   head: optimisedBranch, // "optimised-testbranch"
                   base: sourceBranch, // "testbranch"
-                  body: mainPRComment
+                  body: commentBody
               });
               prNumber = pr.data.number
             }
             else {
               prNumber = existingPRs.data[0].number;
+              await github.rest.pulls.createReview({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber,  
+                  event: "COMMENT",  
+                  comments: commentBody
+                );
             }
           
             core.exportVariable('prNumber', prNumber);
