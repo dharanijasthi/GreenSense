@@ -141,8 +141,7 @@ jobs:
               pull_number: prNumber
             });
             let updatedFiles1=[]
-            const { unified } = require('unified');
-            const { parse } = require('patched');
+            const { diffLines } = require('diff');
               let updatedFilesDict = {}
               for(let updtfile of updatedFiles){
               for (let file of files) {
@@ -150,11 +149,11 @@ jobs:
                 console.log("file content",file)
                 const patch = file.patch;
 
-                const parsedPatch = unified().use(parse).parse(patch);
-                const hunk = parsedPatch.children[0].children[0];
+                const patchLines = patch.split('\n');
+                const diff = diffLines(patchLines[2], patchLines[3]);
 
-                const startPosition = hunk.oldStart;
-                const endPosition = hunk.oldStart + hunk.oldLines - 1;
+                const startPosition = diff[0].count;
+                const endPosition = startPosition + diff[1].count - 1;
                 updtfile.position = startPosition;
               }
               }
