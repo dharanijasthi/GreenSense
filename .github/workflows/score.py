@@ -188,8 +188,8 @@ if __name__ == "__main__":
 
     old_pr_star_rating = "\u2B50" * math.floor(old_pr_star)+"\u2605"*old_extra
     new_pr_star_rating = "\u2B50" * math.floor(new_pr_star)+"\u2605"*new_extra
-    print("old pr score: "+old_pr_score)
-    print("new pr score: "+new_pr_score)
+    print(f"old pr score: {old_pr_score}")
+    print(f"new pr score: {new_pr_score}")
     print("Old Code Star Rating old_pr_star_rating: "+old_pr_star_rating)
     print("New Code Star Rating new_pr_star_rating:"+new_pr_star_rating)
 
