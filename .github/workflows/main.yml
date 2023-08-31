@@ -242,13 +242,12 @@ jobs:
             }
             else {
               prNumber = existingPRs.data[0].number;
-              await github.rest.pulls.createReview({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: prNumber,  
-                  event: "COMMENT",  
-                  comments: commentBody
-                });
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,  // PRs are treated as issues in GitHub's API
+                body: commentBody
+              });
             }
           
             core.exportVariable('prNumber', prNumber);
