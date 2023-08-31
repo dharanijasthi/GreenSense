@@ -229,28 +229,25 @@ jobs:
                 commentBody += "\n\n";  // Add some space between tables
             }
             
-            additionalComments = '## Overall PR stats:\n\n'
+            additionalComments = '## Overall PR stats:\n\n';
             additionalComments += "| Old Score | New Score | Old Rating | New Rating |\n";
             additionalComments += "|-----------|-----------|------------|------------|\n";
-            additionalComments += `| ${old_pr_score} | ${new_pr_score}  | ${old_pr_star_rating} | ${new_pr_star_rating} |`
-            additionalComments += `
+            additionalComments += `| ${old_pr_score} | ${new_pr_score}  | ${old_pr_star_rating} | ${new_pr_star_rating} |\n\n`; // Added a newline here for a break between the table and the next header
 
-            ## Legend and explanation:
+            additionalComments += '## Legend and explanation:\n\n';
+            additionalComments += 'GreenSense rates code based on:\n';
+            additionalComments += '- Time complexity\n';
+            additionalComments += '- Space complexity\n';
+            additionalComments += '- Cyclomatic complexity\n';
+            additionalComments += '___\n\n'; // Two new lines for a break between the content and the next table
 
-            GreenSense rates code based on:
-            - Time complexity
-            - Space complexity
-            - Cyclomatic complexity
-            ___
+            additionalComments += 'The star ratings can be classified as:\n';
+            additionalComments += '| Star Rating       | Explanation |\n';
+            additionalComments += '|-------------------|-------------|\n';
+            additionalComments += '| ⭐⭐⭐⭐★           | Excellent   |\n';
+            additionalComments += '| ⭐⭐⭐★ and above   | Good        |\n';
+            additionalComments += '| ⭐⭐★ and above    | Needs work  |\n';
 
-            The star ratings can be classified as:\n
-            | Star Rating | Explanation | \n
-            |-------------|-------------| \n
-            | ⭐⭐⭐⭐★ | Excellent | \n
-            |⭐⭐⭐★ and above | Good | \n
-            |⭐⭐★ and above | Needs work | \n
-            `
-            
             commentBody += additionalComments
             console.log(`comment body : \n ${commentBody}`)
 
