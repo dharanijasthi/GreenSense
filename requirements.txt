@@ -1,3 +1,0 @@
-openai
-tiktoken
-pygame==2.0.1
