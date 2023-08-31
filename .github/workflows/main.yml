@@ -33,7 +33,7 @@ jobs:
                     const requestData = {
 
                             }
-                    };
+                    
 
                     const options = {
                         hostname: 'api.openai.com',
@@ -41,7 +41,7 @@ jobs:
 
                             'Content-Length': Buffer.byteLength(JSON.stringify(requestData))
                         }
-                    };
+                    
 
                     const req = https.request(options, res => {
                         let responseBody = '';
