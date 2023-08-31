@@ -143,6 +143,7 @@ jobs:
                 if (updtfile.path === file.filename) {
             const patch = file.patch;
             const diffHunkMatch = patch.match(/@@ -\d+,\d+ \+(\d+),\d+ @@/);
+            console.log("diffHunk",diffHunkMatch)
             if (diffHunkMatch) {
                 const positionStart = parseInt(diffHunkMatch[1]);
                 console.log("positionstart",positionStart)
