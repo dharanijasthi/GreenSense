@@ -134,7 +134,7 @@ jobs:
                 base: sourceBranch, // "testbranch"
                 body: explanations
             });
-            console.log("pr",pr)
+            console.log("updatedFiles",updatedFiles)
             const prNumber = pr.data.number;
             const { data: files } = await github.rest.pulls.listFiles({
               owner: context.repo.owner,
