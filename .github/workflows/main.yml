@@ -197,6 +197,10 @@ jobs:
 
             updatedFiles=JSON.parse(process.env.updatedFiles)
             star_ratings=JSON.parse(process.env.star_ratings)
+            old_pr_score=JSON.parse(process.env.old_pr_score)
+            new_pr_score=JSON.parse(process.env.new_pr_score)
+            old_pr_star_rating=JSON.parse(process.env.old_pr_star_rating)
+            new_pr_star_rating=JSON.parse(process.env.new_pr_star_rating)
             
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData) {
@@ -212,12 +216,36 @@ jobs:
                 return table;
             }
             
-            let commentBody = "## Metrics\n\n";
+            let commentBody = "## GreenSense Report\n\n";
 
             for (const [file, fileData] of Object.entries(star_ratings)) {
                 commentBody += generateTableForFile(file, fileData);
                 commentBody += "\n\n";  // Add some space between tables
             }
+            
+            additionalComments = '## Overall PR stats:'
+            additionalComments += "| Old Score | New Score | Old Rating | New Rating |\n";
+            additionalComments += "|-----------|-----------|------------|------------|\n";
+            additionalComments += `| ${old_pr_score} | ${new_pr_score}  | ${old_pr_star_rating} | ${new_pr_star_rating} |`
+            additionalComments += `
+
+            ## Legend and explanation:
+
+            GreenSense rates code based on:
+            - Time complexity
+            - Space complexity
+            - Cyclomatic complexity
+            ___
+
+            The star ratings can be classified as:
+            | Star Rating | Explanation | \n
+            |-------------|-------------| \n
+            | ⭐⭐⭐⭐★ | Excellent| \n
+            |⭐⭐⭐★ and above | Good| \n
+            |⭐⭐★ and above | Needs work| \n
+            `
+            
+            commentBody += additionalComments
             
             // Check if a PR already exists for the branch
             const existingPRs = await github.rest.pulls.list({
