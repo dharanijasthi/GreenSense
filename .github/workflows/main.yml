@@ -384,8 +384,10 @@ jobs:
                 return result;
             }
             const parsedDiff = getFunctionLineNumber(prDiff);
+            console.log(`parsedDiff : ${parsedDiff}`)
 
             const explanationsArray=JSON.parse(process.env.explanationsArray);
+            console.log(`explanationsArray : ${explanationsArray}`)
 
             let comments = [];
 
