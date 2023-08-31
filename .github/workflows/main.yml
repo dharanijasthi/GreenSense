@@ -144,6 +144,7 @@ jobs:
             
               let updatedFilesDict = {}
               for(let file in updatedFiles){
+                console.log("file content",file.content)
                 const fileLines = Buffer.from(file.content, 'base64').toString().split('\n');
                 const lastLinePosition = fileLines.length;
                 console.log("lastLinePosition", lastLinePosition)
