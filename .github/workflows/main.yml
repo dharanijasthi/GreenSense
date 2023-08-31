@@ -150,7 +150,7 @@ jobs:
             console.log(JSON.stringify(updatedFiles))
             core.exportVariable('updatedFiles', updatedFiles);
 
-      - name: Commit and Push to New Branch to New Branch
+      - name: Commit and Push to New Branch
         run: |
             # Extract the source branch name
             SOURCE_BRANCH=$GITHUB_HEAD_REF
@@ -181,14 +181,14 @@ jobs:
             # Optional - x64 or x86 architecture, defaults to x64
             architecture: 'x64'
                      
-      - name: Calulating Star Rating
+      - name: Calculating Star Rating
         env: 
             OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} 
         run: |
             pip install -r requirements.txt
             python .github/workflows/score.py
 
-      - name: Create PR and Comment
+      - name: Create PR
         uses: actions/github-script@v5
         with:
           script: |
@@ -197,7 +197,9 @@ jobs:
 
             updatedFiles=JSON.parse(process.env.updatedFiles)
             star_ratings=JSON.parse(process.env.star_ratings)
-            console.log(`star ratings: ${star_ratings}`)
+            for (let key in star_ratings) {
+                    console.log(`${key}:`, star_ratings[key]);
+                }
 
             // Combine explanations and create a comment on the new PR
             const mainPRComment = '5 stars'
@@ -239,7 +241,7 @@ jobs:
       - name: Install parse-diff
         run: npm install parse-diff
 
-      - name: Create PR and Comment
+      - name: Add PR comments
         uses: actions/github-script@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -337,11 +339,11 @@ jobs:
             console.log(`comments: ${comments}`);
 
             // Create review comments for each file
-            await github.rest.pulls.createReview({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: prNumber,  
-                event: "COMMENT",  
-                comments: comments
-            });
+            // await github.rest.pulls.createReview({
+            //     owner: context.repo.owner,
+            //     repo: context.repo.repo,
+            //     pull_number: prNumber,  
+            //     event: "COMMENT",  
+            //     comments: comments
+            // });
             
