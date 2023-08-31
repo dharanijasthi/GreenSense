@@ -199,5 +199,5 @@ if __name__ == "__main__":
         myfile.write(f"star_ratings={json.dumps(star_rating_dict)}\n")
         myfile.write(f"old_pr_score={old_pr_score}\n")
         myfile.write(f"new_pr_score={new_pr_score}\n")
-        myfile.write(f"new_pr_star_rating={new_pr_star_rating}\n")
+        myfile.write(f"old_pr_star_rating={old_pr_star_rating}\n")
         myfile.write(f"new_pr_star_rating={new_pr_star_rating}\n")
