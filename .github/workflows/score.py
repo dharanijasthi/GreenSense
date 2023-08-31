@@ -178,7 +178,7 @@ if __name__ == "__main__":
             }
             star_rating_dict[codes['path']].append(function_rating_dict)
 
-    print(f'star rating dict {star_rating_dict}')
+    print(f'star rating dict {json.dumps(star_rating_dict)}')
 
     star_rating = give_start_rating(old_pr_score, new_pr_score)
 
