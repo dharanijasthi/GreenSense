@@ -180,4 +180,4 @@ if __name__ == "__main__":
     env_file = os.getenv('GITHUB_ENV')
 
     with open(env_file, "a") as myfile:
-        myfile.write(f"star_ratings={star_rating_dict}")
+        myfile.write(f"star_ratings={json.dumps(star_rating_dict)}")
