@@ -33,7 +33,6 @@ jobs:
                     const requestData = {
 
                             }
-                        ]
                     };
 
                     const options = {
