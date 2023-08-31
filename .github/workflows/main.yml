@@ -163,10 +163,10 @@ jobs:
               }));
               console.log("coments",comments)
             console.log(context.repo.owner,context.repo.repo,prNumber)
-            await github.rest.pulls.createReview({
+            const reviewComments = await github.rest.pulls.createReview({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: prNumber,
                 event: "COMMENT",
-                comments: "Review Comments added"
+                comments: comments
             });
