@@ -143,12 +143,14 @@ jobs:
             let updatedFiles1=[]
             
               let updatedFilesDict = {}
-              for(let file in updatedFiles){
-                console.log("file content",file.content)
-                const fileLines = Buffer.from(file.content, 'base64').toString().split('\n');
-                const lastLinePosition = fileLines.length;
-                console.log("lastLinePosition", lastLinePosition)
-                file.push({position : lastLinePosition});
+              for (let file of updatedFiles) {
+                if (file.content) {
+                  const fileLines = Buffer.from(file.content, 'base64').toString().split('\n');
+                  const lastLinePosition = fileLines.length;
+                  file.push({ position: lastLinePosition });
+                } else {
+                    console.log(error)
+                  }
               }
               console.log("updatedFiles",updatedFiles)
               updatedFilesDict = updatedFiles.map(file => ({
