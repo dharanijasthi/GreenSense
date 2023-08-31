@@ -151,7 +151,7 @@ jobs:
                   file.position= lastLinePosition ;
                 } else {
                     console.log("error")
-                    file.push({ position: 1 });
+                    file.position= 1 ;
                   }
               }
               console.log("updatedFiles",updatedFiles)
