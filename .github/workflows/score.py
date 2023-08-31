@@ -131,6 +131,8 @@ def get_score_for_code(fun):
 if __name__ == "__main__":
 
     star_rating_dict = {}
+    old_pr_score = 0
+    new_pr_score = 0
     for codes in old_and_new_code:
         new_code = codes["newCode"]
         old_code = codes["oldCode"]
@@ -149,6 +151,8 @@ if __name__ == "__main__":
         for function in score_resp_unoptimised:
             print(f"Calculating Score for Function {function}")
             old_score, new_score = score_resp_unoptimised[function]["score"], score_resp_optimised[function]["score"]
+            old_pr_score += old_score
+            new_pr_score += new_score
             print(f"Score for unoptimised Function {old_score}")
             print(f"Score for optimised Function {new_score}")
             print(f"Calculating Sart Rating for Function {function}")
@@ -176,8 +180,22 @@ if __name__ == "__main__":
 
     print(f'star rating dict {star_rating_dict}')
 
+    star_rating = give_start_rating(old_pr_score, new_pr_score)
+
+    old_pr_star, new_pr_star = star_rating["old_code"], star_rating["new_code"]
+    old_extra = 0 if math.ceil(old_star) == old_star else 1
+    new_extra = 0 if math.ceil(new_star) == new_star else 1
+
+    old_pr_star_rating = "\u2B50" * math.floor(old_pr_star)+"\u2605"*old_extra
+    new_pr_star_rating = "\u2B50" * math.floor(new_pr_star)+"\u2605"*new_extra
+    print("Old Code Star Rating old_pr_star_rating: "+old_pr_star_rating)
+    print("New Code Star Rating new_pr_star_rating:"+new_pr_star_rating)
 
     env_file = os.getenv('GITHUB_ENV')
 
     with open(env_file, "a") as myfile:
         myfile.write(f"star_ratings={json.dumps(star_rating_dict)}")
+        myfile.write(f"old_pr_score={old_pr_score}")
+        myfile.write(f"new_pr_score={new_pr_score}")
+        myfile.write(f"new_pr_star_rating={new_pr_star_rating}")
+        myfile.write(f"new_pr_star_rating={new_pr_star_rating}")
