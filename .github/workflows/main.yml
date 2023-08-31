@@ -209,7 +209,7 @@ jobs:
             console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
 
             // Function to generate the markdown table for a single file
-            function generateTableForFile(new_pr_star_ratingfile, functionsData) {
+            function generateTableForFile(file, functionsData) {
                 let table = `### ${file}:\n\n`;
                 table += "| Function | Old Score | New Score | Old Rating | New Rating |\n";
                 table += "|----------|-----------|-----------|------------|------------|\n";
