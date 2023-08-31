@@ -198,20 +198,20 @@ jobs:
             updatedFiles=JSON.parse(process.env.updatedFiles)
             star_ratings=JSON.parse(process.env.star_ratings)
             
-            
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData) {
                 let table = `### ${file}:\n\n`;
                 table += "| Function | Old Score | New Score | Old Rating | New Rating |\n";
                 table += "|----------|-----------|-----------|------------|------------|\n";
-
-                for (const [funcName, funcData] of Object.entries(functionsData)) {
-                table += `| ${funcName} | ${funcData.old_score} | ${funcData.new_score} | ${funcData.old_star_rating} | ${funcData.new_star_rating} |\n`;
+            
+                for (const func of functionsData) {
+                    for (const [funcName, scores] of Object.entries(func)) {
+                        table += `| ${funcName} | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
+                    }
                 }
-
                 return table;
             }
-
+            
             let commentBody = "## Metrics\n\n";
 
             for (const [file, fileData] of Object.entries(star_ratings)) {
@@ -219,7 +219,6 @@ jobs:
                 commentBody += "\n\n";  // Add some space between tables
             }
             
-            console.log(`comments: \n ${commentBody}`)
             // Check if a PR already exists for the branch
             const existingPRs = await github.rest.pulls.list({
                 owner: context.repo.owner,
