@@ -168,5 +168,5 @@ jobs:
                 repo: context.repo.repo,
                 pull_number: prNumber,
                 event: "COMMENT",
-                comments: "Your review comment here"
+                comments: "Review Comments added"
             });
