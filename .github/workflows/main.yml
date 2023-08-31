@@ -159,14 +159,15 @@ jobs:
             const comments = updatedFiles.map(file => ({
                 path: file.path,
                 position: file.position,
-                body: file.explanation
+                body: JSON.stringify(file.explanation)
               }));
               console.log("coments",comments)
+              const commentBodies = comments.map(comment => ({ body: comment.body }));
             console.log(context.repo.owner,context.repo.repo,prNumber)
             await github.rest.pulls.createReview({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   pull_number: prNumber,
                   event: "COMMENT",
-                  comments: comments.map((comment) => ({ body: comment }))
+                  comments: commentBodies
                 });
