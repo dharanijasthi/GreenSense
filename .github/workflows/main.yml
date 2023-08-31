@@ -144,12 +144,14 @@ jobs:
             
               let updatedFilesDict = {}
               for (let file of updatedFiles) {
+                console.log("file content",file.content)
                 if (file.content) {
                   const fileLines = Buffer.from(file.content, 'base64').toString().split('\n');
                   const lastLinePosition = fileLines.length;
                   file.push({ position: lastLinePosition });
                 } else {
-                    console.log(error)
+                    console.log("error")
+                    file.push({ position: 1 });
                   }
               }
               console.log("updatedFiles",updatedFiles)
