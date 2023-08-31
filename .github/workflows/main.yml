@@ -160,10 +160,8 @@ jobs:
                   body: explanations
               });
               prNumber = pr.data.number
-            }
-            else {
-              prNumber = existingPRs.data[0].number;
-            }
+            
+            
       
           
             const comments = updatedFiles.map(file => ({
