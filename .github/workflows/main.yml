@@ -150,7 +150,7 @@ jobs:
             });
             
             let prNumber = null
-            
+            console.log("updatedFiles",updatesFiles)
               pr = await github.rest.pulls.create({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
@@ -169,6 +169,7 @@ jobs:
                 position: 1,  // This needs to be the line number where you want the comment
                 body: file.explanation
             }));
+            console.log("comments",comments)
             // Create review comments for each file
             await github.rest.pulls.createReview({
                 owner: context.repo.owner,
