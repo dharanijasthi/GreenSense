@@ -163,10 +163,24 @@ jobs:
               }));
               console.log("coments",comments)
             console.log(context.repo.owner,context.repo.repo,prNumber)
-            const reviewComments = await github.rest.pulls.createReview({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: prNumber,
-                event: "COMMENT",
-                body: comments
-            });
+            async function createReview() {
+              const octokit = new Octokit({
+                  auth: ${{ secrets.GH_SECRET }},
+              });
+
+              try {
+                const response = await octokit.rest.pulls.createReview({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber,
+                  event: "COMMENT",
+                  body: comments,
+                });
+
+                console.log(response);
+              } catch (error) {
+                      console.error(error);
+                }
+              }
+
+            createReview();
