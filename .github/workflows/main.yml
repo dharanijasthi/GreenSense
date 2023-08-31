@@ -197,10 +197,10 @@ jobs:
 
             updatedFiles=JSON.parse(process.env.updatedFiles)
             star_ratings=JSON.parse(process.env.star_ratings)
-            old_pr_score=JSON.parse(process.env.old_pr_score)
-            new_pr_score=JSON.parse(process.env.new_pr_score)
-            old_pr_star_rating=JSON.parse(process.env.old_pr_star_rating)
-            new_pr_star_rating=JSON.parse(process.env.new_pr_star_rating)
+            old_pr_score=process.env.old_pr_score
+            new_pr_score=process.env.new_pr_score
+            old_pr_star_rating=process.env.old_pr_star_rating
+            new_pr_star_rating=process.env.new_pr_star_rating
             
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData) {
@@ -246,7 +246,8 @@ jobs:
             `
             
             commentBody += additionalComments
-            
+            console.log(`comment body : \n ${commentBody}`)
+
             // Check if a PR already exists for the branch
             const existingPRs = await github.rest.pulls.list({
                 owner: context.repo.owner,
