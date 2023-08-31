@@ -140,8 +140,7 @@ jobs:
               repo: context.repo.repo,
               pull_number: prNumber
             });
-            let updatedFiles1=[]
-              let updatedFilesDict = {}
+            console.log("files",files)
               for(let updtfile of updatedFiles){
               for (let file of files) {
                 if(updtfile.path == file.filename){
