@@ -144,7 +144,7 @@ jobs:
             
               let updatedFilesDict = {}
               for (let file of updatedFiles) {
-                console.log("file content",file.content)
+                console.log("file content",file)
                 if (file.content) {
                   const lastLinePosition = file.content.lastIndexOf('\n') + 1;
                   file.position = lastLinePosition;
