@@ -172,7 +172,22 @@ jobs:
 
             # Push changes
             git push --set-upstream origin $NEW_BRANCH || echo "No changes to push"
-    
+
+      - name: Python Setup
+        uses: actions/setup-python@v4
+        with:
+            # Semantic version range syntax or exact version of a Python version
+            python-version: '3.9'
+            # Optional - x64 or x86 architecture, defaults to x64
+            architecture: 'x64'
+                     
+      - name: Calulating Star Rating
+        env: 
+            OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} 
+        run: |
+            pip install -r requirements.txt
+            python .github/workflows/score.py
+
       - name: Create PR and Comment
         uses: actions/github-script@v5
         with:
@@ -181,6 +196,8 @@ jobs:
             const optimisedBranch = `Green-${sourceBranch}`;
 
             updatedFiles=JSON.parse(process.env.updatedFiles)
+            star_ratings=JSON.parse(process.env.star_ratings)
+            console.log(`star ratings: ${star_ratings}`)
 
             // Combine explanations and create a comment on the new PR
             const mainPRComment = '5 stars'
