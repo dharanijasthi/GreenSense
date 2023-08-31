@@ -88,7 +88,7 @@ jobs:
                     if (explanationMatch && explanationMatch[1]) {
                         explanation = explanationMatch[1];
                     }
-                    fs.writeFileSync(file.filename, updatedContent, 'utf8');
+                    updatedFiles.push({ path: file.filename, explanation: explanation });
                     
                 } catch (error) {
                     console.error("Error with OpenAI request:", error);
@@ -124,6 +124,7 @@ jobs:
             // Combine explanations and create a comment on the new PR
             const explanations = updatedFiles.map(file => `File: ${file.path}\nExplanation: ${file.explanation}`).join("\n\n");
             // Create a PR
+            console.log("explanations",explanations)
             const pr = await github.rest.pulls.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
