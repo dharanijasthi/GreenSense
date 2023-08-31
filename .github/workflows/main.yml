@@ -141,18 +141,18 @@ jobs:
               pull_number: context.payload.pull_request.number
             });
             console.log("files",files)
-              for(let updtfile of updatedFiles){
+            for (let updtfile of updatedFiles) {
               for (let file of files) {
-                if(updtfile.path == file.filename){
-                console.log("file content",file)
-                const patch = file.patch;
-                const lines = patch.split('\n');
-                console.log("lines",lines)
-                const positionStart = patch.match(/@@ -\d+,\d+ \+(\d+),\d+ @@/)[1];
-                const positionEnd = parseInt(positionStart) + patch.split('\n').length - 1;
-                console.log("positionStart",positionStart)
-                updtfile.position = parseInt(positionEnd);
-              }
+                  if (updtfile.path === file.filename) {
+                      const patch = file.patch;
+                      const diffHunkMatch = patch.match(/@@ -\d+,\d+ \+(\d+),\d+ @@/);
+                      if (diffHunkMatch) {
+                          const positionStart = parseInt(diffHunkMatch[1]);
+                          updtfile.position = positionStart;
+                      } else {
+                          console.log(`Diff hunk not found for file: ${updtfile.path}`);
+                      }
+                  }
               }
             }
               console.log("updatedFiles",updatedFiles)
