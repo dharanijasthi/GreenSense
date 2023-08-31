@@ -158,7 +158,7 @@ jobs:
             }
               console.log("updatedFiles",updatedFiles)
               updatedFilesDict = updatedFiles.map(file => ({
-                  path: file.filename,
+                  path: file.path,
                   position: file.position,
                   explanation: file.explanation
                 }));
@@ -166,7 +166,7 @@ jobs:
               console.log(updatedFilesDict);
               
             console.log("updatedFiles1",updatedFiles1);
-            const comments = updatedFiles1.map(file => ({
+            const comments = updatedFiles.map(file => ({
                 path: file.path,
                 position: file.position,
                 body: file.explanation
