@@ -124,7 +124,6 @@ jobs:
             // Combine explanations and create a comment on the new PR
             const explanations = updatedFiles.map(file => `File: ${file.path}\nExplanation: ${file.explanation}`).join("\n\n");
             // Create a PR
-            console.log("explanations",explanations)
             const pr = await github.rest.pulls.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -133,27 +132,28 @@ jobs:
                 base: sourceBranch, // "testbranch"
                 body: explanations
             });
-            console.log("updatedFiles",updatedFiles)
             const prNumber = pr.data.number;
             const { data: files } = await github.rest.pulls.listFiles({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.payload.pull_request.number
             });
-            console.log("files",files)
             for (let updtfile of updatedFiles) {
               for (let file of files) {
-                  if (updtfile.path === file.filename) {
-                      const patch = file.patch;
-                      const diffHunkMatch = patch.match(/@@ -\d+,\d+ \+(\d+),\d+ @@/);
-                      if (diffHunkMatch) {
-                          const positionStart = parseInt(diffHunkMatch[1]);
-                          updtfile.position = positionStart;
-                      } else {
-                          console.log(`Diff hunk not found for file: ${updtfile.path}`);
-                      }
-                  }
-              }
+                if (updtfile.path === file.filename) {
+            const patch = file.patch;
+            const diffHunkMatch = patch.match(/@@ -\d+,\d+ \+(\d+),\d+ @@/);
+            if (diffHunkMatch) {
+                const positionStart = parseInt(diffHunkMatch[1]);
+                console.log("positionstart",positionStart)
+                updtfile.position = positionStart;
+            } else {
+                console.log(`Diff hunk not found for file: ${updtfile.path}`);
+                console.log(`Patch data: ${patch}`);
+                console.log(`Diff hunk match: ${diffHunkMatch}`);
+            }
+            }
+            }
             }
               console.log("updatedFiles",updatedFiles)
             const comments = updatedFiles.map(file => ({
