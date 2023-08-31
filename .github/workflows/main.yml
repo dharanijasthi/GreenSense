@@ -162,7 +162,9 @@ jobs:
                 body: JSON.stringify(file.explanation)
               }));
               console.log("coments",comments)
-
+            for(let comment of comments){
+              console.log("comment",comment)
+            }
             console.log(context.repo.owner,context.repo.repo,prNumber)
             await github.rest.pulls.createReview({
                   owner: context.repo.owner,
