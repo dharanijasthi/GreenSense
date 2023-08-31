@@ -139,10 +139,8 @@ jobs:
         
                     // Write new content to file
                     fs.writeFileSync(file.filename, updatedCode, 'utf8');
-                    
-                    let explanations = get_function_explanations(explanation);
-
-                    updatedFiles.push({ path: file.filename, explanation: explanations, newCode: updatedCode, oldCode: fileContent  });
+        
+                    updatedFiles.push({ path: file.filename, explanation: explanation });
                 } catch (error) {
                     console.error("Error with OpenAI request:", error);
                 }
@@ -185,145 +183,12 @@ jobs:
             // Combine explanations and create a comment on the new PR
             const mainPRComment = '5 stars'
 
-            // Check if a PR already exists for the branch
-            const existingPRs = await github.rest.pulls.list({
+            // Create a PR
+            const pr = await github.rest.pulls.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                head: `${context.repo.owner}:${optimisedBranch}`
+                title: `GreenSense optimisations for ${sourceBranch}`,
+                head: optimisedBranch, // "optimised-testbranch"
+                base: sourceBranch, // "testbranch"
+                body: explanations
             });
-
-            let prNumber = null
-            // If no PRs found for the branch, create one
-            if (existingPRs.data.length === 0) {
-              // Create a PR
-              pr = await github.rest.pulls.create({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  title: `GreenSense optimisations for ${sourceBranch}`,
-                  head: optest_sourcetimisedBranch, // "optimised-testbranch"
-                  base: sourceBranch, // "testbranch"
-                  body: mainPRComment
-              });
-              prNumber = pr.data.number
-            }
-            else {
-              prNumber = existingPRs.data[0].number;
-            }
-          
-            core.exportVariable('prNumber', prNumber);
-
-      # Setup Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'  # You can specify a Node.js version of your choice
-
-      # Install parse-diff
-      - name: Install parse-diff
-        run: npm install parse-diff
-
-      - name: Create PR and Comment
-        uses: actions/github-script@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          script: |
-            const https = require('https');
-            
-            prNumber=process.env.prNumber
-            repoName=context.repo.repo
-            repoOwner=context.repo.owner
-
-            async function getPRDiff(prNumber) {
-                return new Promise((resolve, reject) => {
-                    const token = process.env.GITHUB_TOKEN;
-                    const options = {
-                        hostname: 'patch-diff.githubusercontent.com',
-                        path: `/raw/${repoOwner}/${repoName}/pull/${prNumber}.diff`,
-                        method: 'GET',
-                        headers: {
-                            'User-Agent': 'NodeJS',
-                            'Authorization': `token ${token}`,
-                            'Accept': 'application/vnd.github.v3.raw'
-                        }
-                    };
-        
-                    const req = https.request(options, res => {
-                        let responseBody = '';
-        
-                        res.on('data', chunk => {
-                            responseBody += chunk;
-                        });
-        
-                        res.on('end', () => {
-                            resolve(responseBody);
-                        });
-                    });
-        
-                    req.on('error', error => {
-                        reject(error);
-                    });
-
-                    req.end();
-                });
-            }
-            const prDiff = await getPRDiff(prNumber);
-
-            const parsedDiff = require('parse-diff')(prDiff);
-            console.log('parsedDiff')
-            for (let key in prDiff) {
-                console.log(`${key}:`, prDiff[key]);
-            }
-
-            const updatedFiles=JSON.parse(process.env.updatedFiles)
-
-            function getLineNumberForFunction(diffFile, functionName) {
-                for (const chunk of diffFile.chunks) {
-                    for (const change of chunk.changes) {
-                        if (change.type === 'add' && change.content.includes(`def ${functionName}(`)) {
-                            return change.ln;
-                        }
-                    }
-                }
-                return null;
-            }
-
-            function generateComments(parsedDiff, updatedFiles) {
-                const comments = [];
-
-                for (const diffFile of parsedDiff) {
-                    const matchingFile = updatedFiles.find(f => f.path === diffFile.to);
-                    console.log('matchingFile')
-                    for (let key in matchingFile) {
-                        console.log(`${key}:`, prDiff[key]);
-                    }
-                    if (!matchingFile) continue;
-
-                    for (const explanation of matchingFile.explanation) {
-                        for (const [functionName, explanationText] of Object.entries(explanation)) {
-                            const lineNumber = getLineNumberForFunction(diffFile, functionName);
-                            if (lineNumber !== null) {
-                                comments.push({
-                                    path: diffFile.to,
-                                    position: lineNumber,
-                                    body: explanationText
-                                });
-                            }
-                        }
-                    }
-                }
-
-                return comments;
-            }
-
-            const comments = generateComments(parsedDiff, updatedFiles);
-            console.log(`comments: ${comments}`);
-
-            // Create review comments for each file
-            // await github.rest.pulls.createReview({
-                //     owner: context.repo.owner,
-                //     repo: context.repo.repo,
-                //     pull_number: prNumber,  
-                //     event: "COMMENT",  
-                //     comments: comments
-                // });
