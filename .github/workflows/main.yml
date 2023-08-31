@@ -75,8 +75,8 @@ jobs:
             for (const file of files) {
                 const fileContent = fs.readFileSync(file.filename, 'utf8');
                 try {
-                    const response = await makeOpenAIRequest(fileContent);
-                    // GPT response
+                  const response = await makeOpenAIRequest(fileContent);
+                  if (response.choices && response.choices.length > 0) {
                     const chatResponse = response.choices[0].message.content;
                     const code_regex = /\[CODE_START\]([\s\S]*?)\[CODE_END\]/;
                     const explanation_regex = /\[EXPLANATION_START\]([\s\S]*?)\[EXPLANATION_END\]/;
@@ -85,15 +85,19 @@ jobs:
                     let updatedCode = fileContent;
                     let explanation = 'No explanation';
                     if (codeMatch && codeMatch[1]) {
-                        updatedCode = codeMatch[1];
+                      updatedCode = codeMatch[1];
                     }
                     if (explanationMatch && explanationMatch[1]) {
                         explanation = explanationMatch[1];
                     }
                     updatedFiles.push({ path: file.filename, explanation: explanation });
-                    } catch (error) {
-                    console.error("Error with OpenAI request:", error);
-                }
+                    } else {
+                        console.error("OpenAI response is empty or does not have choices.");
+                    }
+                  } catch (error) {
+                        console.error("Error with OpenAI request:", error);
+                  }
+
             }
             core.exportVariable('updatedFiles', updatedFiles);
       - name: Commit and Push to New Branch
