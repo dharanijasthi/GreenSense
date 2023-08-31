@@ -101,7 +101,7 @@ jobs:
         run: |
                 # Extract the source branch name
                 SOURCE_BRANCH=$GITHUB_HEAD_REF
-                NEW_BRANCH="Green-$SOURCE_BRANCH"
+                NEW_BRANCH="GreenSense-$SOURCE_BRANCH"
                 # Create and switch to the new branch
                 git checkout -b $NEW_BRANCH
                 # Set git user details
@@ -124,7 +124,7 @@ jobs:
         with:
               script: |
                 const sourceBranch = context.payload.pull_request.head.ref;
-                const optimisedBranch = `Green-${sourceBranch}`;
+                const optimisedBranch = `GreenSense-${sourceBranch}`;
                 updatedFiles=JSON.parse(process.env.updatedFiles);
                 // Combine explanations and create a comment on the new PR
                 const explanations = updatedFiles.map(file => `File: ${file.path}\nExplanation: ${file.explanation}`).join("\n\n");
