@@ -197,6 +197,7 @@ jobs:
 
             updatedFiles=JSON.parse(process.env.updatedFiles)
             console.log('updated files')
+            console.log(`dict: ${process.env.star_ratings}`)
             star_ratings=JSON.parse(process.env.star_ratings)
             console.log('star ratings')
 
