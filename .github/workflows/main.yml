@@ -141,20 +141,16 @@ jobs:
               pull_number: prNumber
             });
             let updatedFiles1=[]
-            const { diffLines } = require('diff');
               let updatedFilesDict = {}
               for(let updtfile of updatedFiles){
               for (let file of files) {
                 if(updtfile.path == file.filename){
                 console.log("file content",file)
                 const patch = file.patch;
-
                 const patchLines = patch.split('\n');
-                const diff = diffLines(patchLines[2], patchLines[3]);
-
-                const startPosition = diff[0].count;
-                const endPosition = startPosition + diff[1].count - 1;
-                updtfile.position = startPosition;
+                const positionStart = patchLines[2].split(' ')[1].split(',')[0];
+                const positionEnd = parseInt(positionStart) + patchLines[3].split('\t')[1].length - 1;
+                updtfile.position = positionStart;
               }
               }
             }
