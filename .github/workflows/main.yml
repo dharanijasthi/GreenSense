@@ -163,6 +163,7 @@ jobs:
               }));
               console.log("coments",comments)
             console.log(context.repo.owner,context.repo.repo,prNumber)
+            const { Octokit } = require("@octokit/rest");
             async function createReview() {
               const octokit = new Octokit({
                   auth: ${{ secrets.GH_SECRET }},
