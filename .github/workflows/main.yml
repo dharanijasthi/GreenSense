@@ -150,7 +150,7 @@ jobs:
             });
             
             let prNumber = null
-            console.log("updatedFiles",updatesFiles)
+            console.log("updatedFiles",updatedFiles)
               pr = await github.rest.pulls.create({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
