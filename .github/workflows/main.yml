@@ -142,7 +142,7 @@ jobs:
                     
                     let explanations = get_function_explanations(explanation);
 
-                    updatedFiles.push({ path: file.filename, explanation: explanations });
+                    updatedFiles.push({ path: file.filename, explanation: explanations, newCode: updatedCode, oldCode: fileContent  });
                 } catch (error) {
                     console.error("Error with OpenAI request:", error);
                 }
@@ -200,7 +200,7 @@ jobs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   title: `GreenSense optimisations for ${sourceBranch}`,
-                  head: optimisedBranch, // "optimised-testbranch"
+                  head: optest_sourcetimisedBranch, // "optimised-testbranch"
                   base: sourceBranch, // "testbranch"
                   body: mainPRComment
               });
@@ -320,11 +320,10 @@ jobs:
             console.log(`comments: ${comments}`);
 
             // Create review comments for each file
-            await github.rest.pulls.createReview({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: prNumber,  
-                event: "COMMENT",  
-                comments: comments
-            });
-            
+            // await github.rest.pulls.createReview({
+                //     owner: context.repo.owner,
+                //     repo: context.repo.repo,
+                //     pull_number: prNumber,  
+                //     event: "COMMENT",  
+                //     comments: comments
+                // });
