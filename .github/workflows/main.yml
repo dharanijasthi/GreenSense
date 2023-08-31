@@ -162,13 +162,13 @@ jobs:
                 body: file.explanation
               }));
               console.log("coments",comments)
-              const { data } = await github.rest.pulls.get({
+            const { data } = await github.rest.pulls.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: prNumber,
-              });
+            });
               
-              const commitId = data.head.sha;
+            const commitId = data.head.sha;
             console.log(context.repo.owner,context.repo.repo,prNumber)
             const reviewComments = await github.rest.pulls.createReview({
                 owner: context.repo.owner,
