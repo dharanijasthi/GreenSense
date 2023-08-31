@@ -196,8 +196,8 @@ if __name__ == "__main__":
     env_file = os.getenv('GITHUB_ENV')
 
     with open(env_file, "a") as myfile:
-        myfile.write(f"star_ratings={json.dumps(star_rating_dict)}")
-        myfile.write(f"old_pr_score={old_pr_score}")
-        myfile.write(f"new_pr_score={new_pr_score}")
-        myfile.write(f"new_pr_star_rating={new_pr_star_rating}")
-        myfile.write(f"new_pr_star_rating={new_pr_star_rating}")
+        myfile.write(f"star_ratings={json.dumps(star_rating_dict)}\n")
+        myfile.write(f"old_pr_score={old_pr_score}\n")
+        myfile.write(f"new_pr_score={new_pr_score}\n")
+        myfile.write(f"new_pr_star_rating={new_pr_star_rating}\n")
+        myfile.write(f"new_pr_star_rating={new_pr_star_rating}\n")
