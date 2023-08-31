@@ -110,6 +110,7 @@ jobs:
             });
         
             const updatedFiles = [];
+            const explanationsArray = [];
         
             for (const file of files) {
                 const fileContent = fs.readFileSync(file.filename, 'utf8');
@@ -142,13 +143,18 @@ jobs:
                     
                     let explanations = get_function_explanations(explanation);
 
-                    updatedFiles.push({ path: file.filename, explanation: explanations, newCode: updatedCode, oldCode: fileContent });
+                    updatedFiles.push({ path: file.filename, newCode: updatedCode, oldCode: fileContent });
+                    explanationsArray.push({ path: file.filename, explanation: explanations })
                 } catch (error) {
                     console.error("Error with OpenAI request:", error);
                 }
             }
-            console.log(JSON.stringify(updatedFiles))
+            console.log(JSON.stringify(updatedFiles));
+            console.log(JSON.stringify(explanationsArray));
+
             core.exportVariable('updatedFiles', updatedFiles);
+            core.exportVariable('explanationsArray', explanationsArray);
+
 
       - name: Commit and Push to New Branch
         run: |
@@ -195,8 +201,6 @@ jobs:
             const sourceBranch = context.payload.pull_request.head.ref; 
             const optimisedBranch = `Green-${sourceBranch}`;
 
-            updatedFiles=JSON.parse(process.env.updatedFiles)
-            console.log('updated files')
             console.log(`dict: ${process.env.star_ratings}`)
             star_ratings=JSON.parse(process.env.star_ratings)
             console.log('star ratings')
@@ -341,17 +345,76 @@ jobs:
             }
             const prDiff = await getPRDiff(prNumber);
 
-            console.log(`pr diff: ${prDiff}`)
+            function getFunctionLineNumber(diff) {
+                const lines = diff.split('\n');
+                let currentFile = null;
+                let currentOriginalLine = null;
+                let result = {};
 
-            const updatedFiles=JSON.parse(process.env.updatedFiles)
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+                    
+                    // Check if the line is the start of a new file diff
+                    if (line.startsWith('diff --git')) {
+                        const pathMatch = line.match(/b\/(\S+)/);
+                        if (pathMatch) {
+                            currentFile = pathMatch[1];
+                            result[currentFile] = {};
+                        }
+                        continue;
+                    }
 
+                    if (line.startsWith('@@')) {
+                        const lineNumMatch = line.match(/-(\d+),\d+/);
+                        if (lineNumMatch) {
+                            currentOriginalLine = parseInt(lineNumMatch[1]);
+                        }
+                        continue;
+                    } 
+                    // Check for function definition and save the line number
+                    const funcMatch = line.match(/def (\w+)\(/);
+                    if (funcMatch && currentFile && !line.startsWith('+')) {
+                        const funcName = funcMatch[1];
+                        result[currentFile][funcName] = currentOriginalLine;
+                    }
 
-            // Create review comments for each file
-            // await github.rest.pulls.createReview({
-            //     owner: context.repo.owner,
-            //     repo: context.repo.repo,
-            //     pull_number: prNumber,  
-            //     event: "COMMENT",  
-            //     comments: comments
-            // });
+                    currentOriginalLine++;
+
+                }
+                return result;
+            }
+            const parsedDiff = getFunctionLineNumber(prDiff);
+
+            const explanationsArray=JSON.parse(process.env.explanationsArray);
+
+            let comments = [];
+
+            explanationsArray.forEach(item => {
+                const filePath = item.path;
+                if (parsedDiff[filePath]) {
+                    item.explanation.forEach(explanation => {
+                    const functionName = Object.keys(explanation)[0];
+                    const message = explanation[functionName];
+                    const position = parsedDiff[filePath][functionName];
+                    if (position !== undefined) {
+                        comments.push({
+                        path: filePath,
+                        position: position,
+                        body: message
+                        });
+                    }
+                    });
+                }
+            });
+
+            console.log(comments);
+            
+            Create review comments for each file
+            await github.rest.pulls.createReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,  
+                event: "COMMENT",  
+                comments: comments
+            });
             
