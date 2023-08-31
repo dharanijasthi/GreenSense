@@ -411,7 +411,7 @@ jobs:
 
             console.log(comments);
             
-            Create review comments for each file
+            // Create review comments for each file
             await github.rest.pulls.createReview({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
