@@ -163,21 +163,10 @@ jobs:
               }));
               console.log("coments",comments)
             console.log(context.repo.owner,context.repo.repo,prNumber)
-            async function createReview() {
-
-              try {
-                const response = await github.rest.pulls.createReview({
+            await github.rest.pulls.createReview({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   pull_number: prNumber,
                   event: "COMMENT",
-                  comments: comments,
+                  comments: comments.map((comment) => ({ body: comment }))
                 });
-
-                console.log(response);
-              } catch (error) {
-                      console.error(error);
-                }
-              }
-
-            createReview();
