@@ -209,7 +209,7 @@ jobs:
             console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
 
             // Function to generate the markdown table for a single file
-            function generateTableForFile(file, functionsData) {
+            function generateTableForFile(new_pr_star_ratingfile, functionsData) {
                 let table = `### ${file}:\n\n`;
                 table += "| Function | Old Score | New Score | Old Rating | New Rating |\n";
                 table += "|----------|-----------|-----------|------------|------------|\n";
@@ -341,55 +341,10 @@ jobs:
             }
             const prDiff = await getPRDiff(prNumber);
 
-            const parsedDiff = require('parse-diff')(prDiff);
-            console.log('parsedDiff')
-            for (let key in prDiff) {
-                console.log(`${key}:`, prDiff[key]);
-            }
+            console.log(`pr diff: ${prDiff}`)
 
             const updatedFiles=JSON.parse(process.env.updatedFiles)
 
-            function getLineNumberForFunction(diffFile, functionName) {
-                for (const chunk of diffFile.chunks) {
-                    for (const change of chunk.changes) {
-                        if (change.type === 'add' && change.content.includes(`def ${functionName}(`)) {
-                            return change.ln;
-                        }
-                    }
-                }
-                return null;
-            }
-
-            function generateComments(parsedDiff, updatedFiles) {
-                const comments = [];
-
-                for (const diffFile of parsedDiff) {
-                    const matchingFile = updatedFiles.find(f => f.path === diffFile.to);
-                    console.log('matchingFile')
-                    for (let key in matchingFile) {
-                        console.log(`${key}:`, prDiff[key]);
-                    }
-                    if (!matchingFile) continue;
-
-                    for (const explanation of matchingFile.explanation) {
-                        for (const [functionName, explanationText] of Object.entries(explanation)) {
-                            const lineNumber = getLineNumberForFunction(diffFile, functionName);
-                            if (lineNumber !== null) {
-                                comments.push({
-                                    path: diffFile.to,
-                                    position: lineNumber,
-                                    body: explanationText
-                                });
-                            }
-                        }
-                    }
-                }
-
-                return comments;
-            }
-
-            const comments = generateComments(parsedDiff, updatedFiles);
-            console.log(`comments: ${comments}`);
 
             // Create review comments for each file
             // await github.rest.pulls.createReview({
