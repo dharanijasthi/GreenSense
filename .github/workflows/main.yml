@@ -147,9 +147,11 @@ jobs:
                 if(updtfile.path == file.filename){
                 console.log("file content",file)
                 const patch = file.patch;
-                const patchLines = patch.split('\n');
-                const positionStart = patchLines[2].split(' ')[1].split(',')[0];
-                const positionEnd = parseInt(positionStart) + patchLines[3].split('\t')[1].length - 1;
+                const lines = patch.split('\n');
+                console.log("lines",lines)
+                const positionStart = lines[2].match(/\-(\d+)/)[1];
+                const positionEnd = parseInt(positionStart) + lines[3].match(/\+(\w+)/)[1].length - 1;
+                console.log("positionStart",positionStart)
                 updtfile.position = positionStart;
               }
               }
