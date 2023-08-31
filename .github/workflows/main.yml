@@ -229,7 +229,7 @@ jobs:
                 commentBody += "\n\n";  // Add some space between tables
             }
             
-            additionalComments = '## Overall PR stats:'
+            additionalComments = '## Overall PR stats:\n\n'
             additionalComments += "| Old Score | New Score | Old Rating | New Rating |\n";
             additionalComments += "|-----------|-----------|------------|------------|\n";
             additionalComments += `| ${old_pr_score} | ${new_pr_score}  | ${old_pr_star_rating} | ${new_pr_star_rating} |`
@@ -243,12 +243,12 @@ jobs:
             - Cyclomatic complexity
             ___
 
-            The star ratings can be classified as:
+            The star ratings can be classified as:\n
             | Star Rating | Explanation | \n
             |-------------|-------------| \n
-            | ⭐⭐⭐⭐★ | Excellent| \n
-            |⭐⭐⭐★ and above | Good| \n
-            |⭐⭐★ and above | Needs work| \n
+            | ⭐⭐⭐⭐★ | Excellent | \n
+            |⭐⭐⭐★ and above | Good | \n
+            |⭐⭐★ and above | Needs work | \n
             `
             
             commentBody += additionalComments
