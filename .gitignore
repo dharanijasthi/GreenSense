@@ -2,11 +2,10 @@
 __pycache__/
 *.py[cod]
 *$py.class
-*.bat
 
 # C extensions
 *.so
-*.sh
+
 # Distribution / packaging
 .Python
 build/
@@ -75,6 +74,9 @@ docs/_build/
 # PyBuilder
 .pybuilder/
 target/
+
+#Shell
+*.sh
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -159,4 +161,3 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
-node_modules
