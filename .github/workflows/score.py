@@ -124,7 +124,7 @@ def get_score_for_code(fun):
         print("res",res)
         code = resp[res]
         print("code",code)
-        if not code['cyclo_complexity']:
+        if code.get('cyclo_complexity') is None:
             print("entered")
             code['cyclo_complexity'] =1
         score = convert_complexity_to_number(
