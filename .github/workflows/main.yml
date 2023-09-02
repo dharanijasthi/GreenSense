@@ -274,6 +274,7 @@ jobs:
                   base: sourceBranch, // "testbranch"
                   body: commentBody
               });
+              console.log("pr",pr)
               prNumber = pr.data.number
             }
             else {
