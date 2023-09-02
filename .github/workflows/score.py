@@ -114,8 +114,9 @@ def get_score_for_code(fun):
 
     print("Getting Cyclomatic Complexity")
     cyclo_comp = get_cyclomitic_complexity(fun=fun)
-
+    print("cycle comp",cyclo_comp)
     for c in cyclo_comp:
+        print("c",c)
         name, comp = c.name, c.complexity
         resp[name]["cyclo_complexity"] = comp
 
