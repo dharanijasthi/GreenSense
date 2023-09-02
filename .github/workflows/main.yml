@@ -389,24 +389,31 @@ jobs:
             const explanationsArray=JSON.parse(process.env.explanationsArray);
             console.log(`explanationsArray : ${explanationsArray}`)
 
+            
             let comments = [];
-            console.log("explanationsArray",explanationsArray)
+
             explanationsArray.forEach(item => {
-                const filePath = item.path;
-                if (parsedDiff[filePath]) {
-                    item.explanation.forEach(explanation => {
-                    const functionName = Object.keys(explanation)[0];
-                    const message = explanation[functionName];
-                    const position = parsedDiff[filePath][functionName];
-                    if (position !== undefined) {
-                        comments.push({
-                        path: filePath,
-                        position: position,
-                        body: message
-                        });
-                    }
-                    });
-                }
+            const filePath = item.path;
+            if (parsedDiff[filePath]) {
+                item.explanation.forEach(explanation => {
+            const functionName = Object.keys(explanation)[0];
+            const message = explanation[functionName];
+            const position = parsedDiff[filePath][functionName];
+            if (position !== undefined) {
+                // Construct the URL to the specific file in the PR
+                const fileURL = `https://github.com/${repoOwner}/${repoName}/pull/${prNumber}/files#diff-${encodeURIComponent(filePath)}`;
+                
+                // Create a clickable link to the file with the message
+                const commentBody = `[${filePath}](${fileURL}) - Line ${position}: ${message}`;
+                
+                comments.push({
+                    path: filePath,
+                    position: position,
+                    body: commentBody
+                });
+            }
+            });
+            }
             });
 
             console.log(comments);
