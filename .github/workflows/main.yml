@@ -214,7 +214,6 @@ jobs:
 
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData) {
-                # let table = `### ${file}:\n\n`;
                 let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
                 table += "| Function | Old Score | New Score | Old Rating | New Rating |\n";
                 table += "|----------|-----------|-----------|------------|------------|\n";
