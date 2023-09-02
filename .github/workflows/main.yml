@@ -214,7 +214,8 @@ jobs:
 
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData) {
-                let table = `### ${file}:\n\n`;
+                # let table = `### ${file}:\n\n`;
+                let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
                 table += "| Function | Old Score | New Score | Old Rating | New Rating |\n";
                 table += "|----------|-----------|-----------|------------|------------|\n";
             
@@ -229,7 +230,7 @@ jobs:
             let commentBody = "## GreenSense Report\n\n";
 
             for (const [file, fileData] of Object.entries(star_ratings)) {
-                commentBody += generateTableForFile(file, fileData);
+                commentBody += generateTableForFile(file, fileData, optimisedBranch);
                 commentBody += "\n\n";  // Add some space between tables
             }
             
@@ -389,31 +390,24 @@ jobs:
             const explanationsArray=JSON.parse(process.env.explanationsArray);
             console.log(`explanationsArray : ${explanationsArray}`)
 
-            
             let comments = [];
-
+            console.log("explanationsArray",explanationsArray)
             explanationsArray.forEach(item => {
-            const filePath = item.path;
-            if (parsedDiff[filePath]) {
-                item.explanation.forEach(explanation => {
-            const functionName = Object.keys(explanation)[0];
-            const message = explanation[functionName];
-            const position = parsedDiff[filePath][functionName];
-            if (position !== undefined) {
-                // Construct the URL to the specific file in the PR
-                const fileURL = `https://github.com/${repoOwner}/${repoName}/pull/${prNumber}/files#diff-${encodeURIComponent(filePath)}`;
-                
-                // Create a clickable link to the file with the message
-                const commentBody = `[${filePath}](${fileURL}) - Line ${position}: ${message}`;
-                
-                comments.push({
-                    path: filePath,
-                    position: position,
-                    body: commentBody
-                });
-            }
-            });
-            }
+                const filePath = item.path;
+                if (parsedDiff[filePath]) {
+                    item.explanation.forEach(explanation => {
+                    const functionName = Object.keys(explanation)[0];
+                    const message = explanation[functionName];
+                    const position = parsedDiff[filePath][functionName];
+                    if (position !== undefined) {
+                        comments.push({
+                        path: filePath,
+                        position: position,
+                        body: message
+                        });
+                    }
+                    });
+                }
             });
 
             console.log(comments);
