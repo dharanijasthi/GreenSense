@@ -1,10 +1,12 @@
-GreenSense
-In repo settings, under actions tab, remember to:
+# GreenSense
 
-enable actions,
-set write permissions for actions
+In repo settings, under actions tab, remember to:
+- enable actions,
+- set write permissions for actions
+
+
 TODO:
 
-Add openai api
-Use octokit entirely
-Handle edge case: PR already exists
+1. Add openai api
+2. Use octokit entirely
+3. Handle edge case: PR already exists
