@@ -376,10 +376,7 @@ jobs:
                     const funcMatch = line.match(/def (\w+)\(/);
                     if (funcMatch && currentFile && !line.startsWith('+')) {
                         const funcName = funcMatch[1];
-                        result[currentFile][funcName] = {
-                            start: currentOriginalLine,
-                            end: currentOriginalLine + parseInt(lineNumMatch[2]) - 1
-                        };
+                        result[currentFile][funcName] = currentOriginalLine;
                     }
 
                     currentOriginalLine++;
@@ -403,10 +400,9 @@ jobs:
                     const message = explanation[functionName];
                     const position = parsedDiff[filePath][functionName];
                     if (position !== undefined) {
-                        const { start, end } = positions;
                         comments.push({
                         path: filePath,
-                        position: end,
+                        position: position,
                         body: message
                         });
                     }
@@ -424,3 +420,4 @@ jobs:
                 event: "COMMENT",  
                 comments: comments
             });
+            
