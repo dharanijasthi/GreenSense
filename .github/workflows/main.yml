@@ -390,7 +390,7 @@ jobs:
             console.log(`explanationsArray : ${explanationsArray}`)
 
             let comments = [];
-
+            console.log("explanationsArray",explanationsArray)
             explanationsArray.forEach(item => {
                 const filePath = item.path;
                 if (parsedDiff[filePath]) {
