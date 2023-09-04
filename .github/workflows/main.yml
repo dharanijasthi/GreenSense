@@ -215,33 +215,6 @@ jobs:
             
 
             // Function to get the line number of a function in a file
-                async function getLineNumber(owner, repo, branch, filename, functionName) {
-                    // Get the content of the file from the specified branch
-                    const response = await github.repos.getContents({
-                        owner,
-                        repo,
-                        path: filename,
-                        ref: branch,
-                    });
-                    console.log("resp",response)
-                    // Decode the content from base64
-                    const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
-
-                    // Search for the function definition in the content
-                    const lines = content.split('\n');
-                    let lineNumber = -1;
-                    console.log("lines",lines)
-                    console.log("fn name",${functionName})
-                    for (let i = 0; i < lines.length; i++) {
-                        if (lines[i].includes(`def ${functionName}(`)) {
-                        lineNumber = i + 1; // Line numbers are 1-based
-                        break;
-                        }
-                    }
-                    console.log("klineno",lineNumber)
-
-                    return lineNumber;
-                }
 
             function generateTableForFile(file, functionsData, fileUrl) {
                 let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
