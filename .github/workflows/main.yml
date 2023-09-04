@@ -209,36 +209,9 @@ jobs:
             new_pr_score=process.env.new_pr_score
             old_pr_star_rating=process.env.old_pr_star_rating
             new_pr_star_rating=process.env.new_pr_star_rating
-            
-            const existingPRs1 = await github.rest.pulls.list({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                head: `${context.repo.owner}:${optimisedBranch}`
-            });
-            prNumber1 = existingPRs1.data[0].number;
+
             console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
-            const prDiff = await getPRDiff(prNumber1);
-
-            const parseDiff = require('parse-diff');
-
-            function getFunctionLineNumber(diff) {
-            const files = parseDiff(diff);
-            let result = {};
-
-            files.forEach((file) => {
-                file.chunks.forEach((chunk) => {
-            chunk.changes.forEach((change) => {
-                if (change.type === 'add') {
-                    const funcMatch = change.content.match(/def (\w+)\(/);
-                    if (funcMatch) {
-                        const funcName = funcMatch[1];
-                        result[file.to] = result[file.to] || {};
-                        result[file.to][funcName] = change.ln - 1;
-                    }
-                }
-            });
-            });
-            });
+            
 
             function generateTableForFile(file, functionsData, fileUrl) {
                 let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
