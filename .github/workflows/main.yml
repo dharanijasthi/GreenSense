@@ -246,7 +246,7 @@ jobs:
                 req.end();
             });
             }
-
+            console.log("1st fn done")
             async function getFunctionLineNumber(file, functionName) {
                 const branchContent = await getBranchContent(file);
 
@@ -257,7 +257,7 @@ jobs:
                     const line = lines[i];
 
         
-                    const funcMatch = line.match(/function (\w+)\(/); // Modify this regex according to your function definition pattern
+                    const funcMatch = line.match(/def (\w+)\(/); // Modify this regex according to your function definition pattern
                     if (funcMatch) {
                         const funcName = funcMatch[1];
                         if (funcName === functionName) {
@@ -271,7 +271,7 @@ jobs:
                 return null; // Function not found in the branch content
             }
 
-
+            console.log("2nd function")
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData) {
                 let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
