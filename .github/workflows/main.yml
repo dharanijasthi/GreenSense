@@ -361,43 +361,28 @@ jobs:
             }
             const prDiff = await getPRDiff(prNumber);
 
+            const parseDiff = require('parse-diff');
+
             function getFunctionLineNumber(diff) {
-                const lines = diff.split('\n');
-                let currentFile = null;
-                let currentOriginalLine = null;
-                let result = {};
+            const files = parseDiff(diff);
+            let result = {};
 
-                for (let i = 0; i < lines.length; i++) {
-                    const line = lines[i];
-                    
-                    // Check if the line is the start of a new file diff
-                    if (line.startsWith('diff --git')) {
-                        const pathMatch = line.match(/b\/(\S+)/);
-                        if (pathMatch) {
-                            currentFile = pathMatch[1];
-                            result[currentFile] = {};
-                        }
-                        continue;
-                    }
-
-                    if (line.startsWith('@@')) {
-                        const lineNumMatch = line.match(/-(\d+),\d+/);
-                        if (lineNumMatch) {
-                            currentOriginalLine = parseInt(lineNumMatch[1]);
-                        }
-                        continue;
-                    } 
-                    // Check for function definition and save the line number
-                    const funcMatch = line.match(/def (\w+)\(/);
-                    if (funcMatch && currentFile && !line.startsWith('+')) {
+            files.forEach((file) => {
+                file.chunks.forEach((chunk) => {
+            chunk.changes.forEach((change) => {
+                if (change.type === 'add') {
+                    const funcMatch = change.content.match(/def (\w+)\(/);
+                    if (funcMatch) {
                         const funcName = funcMatch[1];
-                        result[currentFile][funcName] = currentOriginalLine;
+                        result[file.to] = result[file.to] || {};
+                        result[file.to][funcName] = change.ln - 1;
                     }
-
-                    currentOriginalLine++;
-
                 }
-                return result;
+            });
+            });
+            });
+
+            return result;
             }
             const parsedDiff = getFunctionLineNumber(prDiff);
             console.log(`parsedDiff : ${parsedDiff}`)
