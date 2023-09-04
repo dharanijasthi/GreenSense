@@ -212,16 +212,59 @@ jobs:
 
             console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
             
+            
+
+            // Function to get the line number of a function in a file
+            async function getLineNumber(owner, repo, branch, filename, functionName) {
+            try {
+                // Get the content of the file from the specified branch
+                const response = await octokit.repos.getContents({
+                    owner,
+                    repo,
+                    path: filename,
+                    ref: branch,
+                });
+
+                // Decode the content from base64
+                const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
+
+                // Search for the function definition in the content
+                const lines = content.split('\n');
+                let lineNumber = -1;
+
+                for (let i = 0; i < lines.length; i++) {
+                    if (lines[i].includes(`function ${functionName}(`)) {
+                    lineNumber = i + 1; // Line numbers are 1-based
+                    break;
+                }
+                }
+
+            if (lineNumber === -1) {
+                return `Function '${functionName}' not found in the file.`;
+            }
+
+            return ${lineNumber};
+            } catch (error) {
+                return `Error: ${error.message}`;
+            }
+            }
 
             function generateTableForFile(file, functionsData, fileUrl) {
                 let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
                 table += "| Function | Old Score | New Score | Old Rating | New Rating |\n";
                 table += "|----------|-----------|-----------|------------|------------|\n";
-
+                owner = context.repo.owner
+                repo = context.repo.repo
+                branch = ${optimisedBranch}
+                filename = ${file}
                 console.log("functionsData",functionsData)
                 for (const func of functionsData) {
                     for (const [funcName, scores] of Object.entries(func)) {
-                        const funcLink = `${fileUrl}#${funcName+'.py'.replace(/\s/g, '-').toLowerCase()}`;
+                        functionName = funcName+'.py'
+                        getLineNumber(owner, repo, branch, filename, functionName)
+                            .then((result) => lineno = result )
+                            .catch((error) => console.error(error));
+                        const lineLink = `${fileUrl}#L${lineno}`;
                         table += `| [${funcName}](${funcLink}) | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
                 }
                 }
