@@ -220,10 +220,43 @@ jobs:
             old_pr_star_rating=process.env.old_pr_star_rating
             new_pr_star_rating=process.env.new_pr_star_rating
             
+            const existingPRs = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                head: `${context.repo.owner}:${optimisedBranch}`
+            });
+            prNumber1 = existingPRs.data[0].number;
             console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
-            // Function to generate the markdown table for a single file
+            const prDiff = await getPRDiff(prNumber1);
 
-            function generateTableForFile(file, functionsData, fileUrl, parsedDiff) {
+            const parseDiff = require('parse-diff');
+
+            function getFunctionLineNumber(diff) {
+            const files = parseDiff(diff);
+            let result = {};
+
+            files.forEach((file) => {
+                file.chunks.forEach((chunk) => {
+            chunk.changes.forEach((change) => {
+                if (change.type === 'add') {
+                    const funcMatch = change.content.match(/def (\w+)\(/);
+                    if (funcMatch) {
+                        const funcName = funcMatch[1];
+                        result[file.to] = result[file.to] || {};
+                        result[file.to][funcName] = change.ln - 1;
+                    }
+                }
+            });
+            });
+            });
+
+            return result;
+            }
+            const parsedDiff1 = getFunctionLineNumber(prDiff);
+            console.log(`parsedDiff : ${parsedDiff1}`)
+
+            // Function to generate the markdown table for a single file
+            function generateTableForFile(file, functionsData, fileUrl, parsedDiff1) {
                 console.log("parsed Diff", parsedDiff)
                 let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
                 table += "| Function | Old Score | New Score | Old Rating | New Rating |\n";
@@ -244,7 +277,7 @@ jobs:
 
             for (const [file, fileData] of Object.entries(star_ratings)) {
                 const fileUrl = `https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}`;
-                commentBody += generateTableForFile(file, fileData, optimisedBranch, fileUrl, parsedDiff);
+                commentBody += generateTableForFile(file, fileData, optimisedBranch, fileUrl, parsedDiff1);
                 commentBody += "\n\n";
             }
             
