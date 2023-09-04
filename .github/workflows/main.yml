@@ -200,7 +200,7 @@ jobs:
             script: |
                 const sourceBranch = context.payload.pull_request.head.ref; 
                 const optimisedBranch = `Green-${sourceBranch}`;
-                
+                const fetch = require('node-fetch');
                 console.log(`dict: ${process.env.star_ratings}`)
                 star_ratings=JSON.parse(process.env.star_ratings)
                 console.log('star ratings')
