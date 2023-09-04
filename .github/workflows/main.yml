@@ -217,7 +217,8 @@ jobs:
                 let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
                 table += "| Function | Old Score | New Score | Old Rating | New Rating |\n";
                 table += "|----------|-----------|-----------|------------|------------|\n";
-            
+
+                console.log("functionsData",functionsData)
                 for (const func of functionsData) {
                     for (const [funcName, scores] of Object.entries(func)) {
                         console.log("scores",scores)
