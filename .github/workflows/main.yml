@@ -211,7 +211,7 @@ jobs:
             new_pr_star_rating=process.env.new_pr_star_rating
             
             console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
-
+            const parsedDiff = JSON.parse(process.env.parsedDiff);
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData, fileUrl, parsedDiff) {
                 console.log("parsed Diff", parsedDiff)
@@ -426,3 +426,4 @@ jobs:
                 comments: comments
             });
             
+            core.exportVariable('parsedDiff', JSON.stringify(parsedDiff));
