@@ -220,7 +220,8 @@ jobs:
             
                 for (const func of functionsData) {
                     for (const [funcName, scores] of Object.entries(func)) {
-                        table += `| ${funcName} | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
+                        const functionLink = `${fileUrl}#L${scores.line_number}`;
+                        table += `| [${funcName}](${functionLink}) | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
                     }
                 }
                 return table;
@@ -229,8 +230,9 @@ jobs:
             let commentBody = "## GreenSense Report\n\n";
 
             for (const [file, fileData] of Object.entries(star_ratings)) {
-                commentBody += generateTableForFile(file, fileData, optimisedBranch);
-                commentBody += "\n\n";  // Add some space between tables
+                const fileUrl = `https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}`;
+                commentBody += generateTableForFile(file, fileData, optimisedBranch, fileUrl);
+                commentBody += "\n\n";
             }
             
             additionalComments = '## Overall PR stats:\n\n';
