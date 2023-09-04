@@ -233,7 +233,7 @@ jobs:
                     console.log("lines",lines)
                     console.log("fn name",${functionName})
                     for (let i = 0; i < lines.length; i++) {
-                        if (lines[i].includes(`def ${functionName}`)) {
+                        if (lines[i].includes(`def ${functionName}(`)) {
                         lineNumber = i + 1; // Line numbers are 1-based
                         break;
                         }
@@ -255,8 +255,30 @@ jobs:
                 for (const func of functionsData) {
                     for (const [funcName, scores] of Object.entries(func)) {
                         functionName = `${funcName}`
-                        const lineno = getLineNumber(owner, repo, branch, filename, functionName);
-                        const lineLink = `${fileUrl}#L${lineno}`;
+                        const response = await github.repos.getContents({
+                        owner,
+                        repo,
+                        path: filename,
+                        ref: branch,
+                    });
+                    console.log("resp",response)
+                    // Decode the content from base64
+                    const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
+
+                    // Search for the function definition in the content
+                    const lines = content.split('\n');
+                    let lineNumber = -1;
+                    console.log("lines",lines)
+                    console.log("fn name",${functionName})
+                    for (let i = 0; i < lines.length; i++) {
+                        if (lines[i].includes(`def ${functionName}(`)) {
+                        lineNumber = i + 1; // Line numbers are 1-based
+                        break;
+                        }
+                    }
+                    console.log("klineno",lineNumber)
+
+                        const lineLink = `${fileUrl}#L${lineNumber}`;
                         table += `| [${funcName}](${funcLink}) | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
                     }
                 }
