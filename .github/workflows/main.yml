@@ -213,11 +213,10 @@ jobs:
                 console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
 
                 async function getLineRange(owner, repo, branch, filename, functionName){
-                        const filePath = https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${filename}
+                        const filePath = `https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${filename}`;
                         const content = $(cat "$filePath")
                         const lines = content.split('\n');
                         let startLine = -1;
-                        let endLine = -1;
 
                         for (let i = 0; i < lines.length; i++) {
                             if (lines[i].includes(`def ${functionName}(`)) {
@@ -226,13 +225,7 @@ jobs:
                             }
                         }
 
-                        if (startLine === -1) {
-                            return `Function '${functionName}' not found in the file.`;
-                        }
-
-                        endLine = startLine + 1;
-
-                        const githubLink = `https://github.com/${owner}/${repo}/blob/${branch}/${filename}#L${startLine}C1-L${endLine}C1`;
+                        const githubLink = `https://github.com/${owner}/${repo}/blob/${branch}/${filename}#L${startLine}`;
     
                         return githubLink
                     
