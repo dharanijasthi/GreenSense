@@ -208,6 +208,7 @@ jobs:
                             -H "Accept: application/vnd.github.v3.raw" \
                             -s \
                             "https://api.github.com/repos/${{ github.repository }}/contents/$file_path")
+                console.log("Response",response)
     
               # Use a script (e.g., Python, Bash, or JavaScript) to parse the content and find the line number of the function
               # For example, using Python:
