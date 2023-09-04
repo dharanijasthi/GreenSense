@@ -213,7 +213,7 @@ jobs:
                 console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
     
                 // Function to generate the markdown table for a single file
-                function generateTableForFile(file, functionsData) {
+                function generateTableForFile(file, functionsData, fileUrl) {
                     let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
                     table += "| Function | Old Score | New Score | Old Rating | New Rating |\n";
                     table += "|----------|-----------|-----------|------------|------------|\n";
@@ -231,7 +231,8 @@ jobs:
                 let commentBody = "## GreenSense Report\n\n";
     
                 for (const [file, fileData] of Object.entries(star_ratings)) {
-                    commentBody += generateTableForFile(file, fileData, optimisedBranch);
+                    const fileUrl = `https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}`;
+                    commentBody += generateTableForFile(file, fileData, optimisedBranch, fileUrl);
                     commentBody += "\n\n";  // Add some space between tables
                 }
                 
