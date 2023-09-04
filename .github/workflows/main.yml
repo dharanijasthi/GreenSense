@@ -220,12 +220,12 @@ jobs:
             old_pr_star_rating=process.env.old_pr_star_rating
             new_pr_star_rating=process.env.new_pr_star_rating
             
-            const existingPRs = await github.rest.pulls.list({
+            const existingPRs1 = await github.rest.pulls.list({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 head: `${context.repo.owner}:${optimisedBranch}`
             });
-            prNumber1 = existingPRs.data[0].number;
+            prNumber1 = existingPRs1.data[0].number;
             console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
             const prDiff = await getPRDiff(prNumber1);
 
