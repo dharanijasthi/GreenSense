@@ -197,109 +197,100 @@ jobs:
       - name: Create PR
         uses: actions/github-script@v5
         with:
-          script: |
-            const sourceBranch = context.payload.pull_request.head.ref; 
-            const optimisedBranch = `Green-${sourceBranch}`;
-            
-            console.log(`dict: ${process.env.star_ratings}`)
-            star_ratings=JSON.parse(process.env.star_ratings)
-            console.log('star ratings')
-
-            old_pr_score=process.env.old_pr_score
-            new_pr_score=process.env.new_pr_score
-            old_pr_star_rating=process.env.old_pr_star_rating
-            new_pr_star_rating=process.env.new_pr_star_rating
-
-            console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
-            
-            
-
-            // Function to get the line number of a function in a file
-
-            async function generateTableForFile(file, functionsData, fileUrl) {
-                let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
-                table += "| Function | Old Score | New Score | Old Rating | New Rating |\n";
-                table += "|----------|-----------|-----------|------------|------------|\n";
-                owner = context.repo.owner
-                repo = context.repo.repo
-                branch = ${optimisedBranch}
-                filename = ${file}
-                console.log("functionsData",functionsData)
-                for (const func of functionsData) {
-                    for (const [funcName, scores] of Object.entries(func)) {
-                        functionName = `${funcName}`
-                        lineNumber = 4
-                        const lineLink = `${fileUrl}#L${lineNumber}`;
-                        table += `| [${funcName}](${funcLink}) | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
+            script: |
+                const sourceBranch = context.payload.pull_request.head.ref; 
+                const optimisedBranch = `Green-${sourceBranch}`;
+    
+                console.log(`dict: ${process.env.star_ratings}`)
+                star_ratings=JSON.parse(process.env.star_ratings)
+                console.log('star ratings')
+    
+                old_pr_score=process.env.old_pr_score
+                new_pr_score=process.env.new_pr_score
+                old_pr_star_rating=process.env.old_pr_star_rating
+                new_pr_star_rating=process.env.new_pr_star_rating
+                
+                console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
+    
+                // Function to generate the markdown table for a single file
+                function generateTableForFile(file, functionsData) {
+                    let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
+                    table += "| Function | Old Score | New Score | Old Rating | New Rating |\n";
+                    table += "|----------|-----------|-----------|------------|------------|\n";
+                
+                    for (const func of functionsData) {
+                        for (const [funcName, scores] of Object.entries(func)) {
+                            lineNumber = 4
+                            const lineLink = `${fileUrl}#L${lineNumber}`;
+                            table += `| [${funcName}](${lineLink}) | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
+                        }
                     }
+                    return table;
                 }
-                return table;
-            }
-            
-            let commentBody = "## GreenSense Report\n\n";
-
-            for (const [file, fileData] of Object.entries(star_ratings)) {
-                const fileUrl = `https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}`;
-                commentBody += generateTableForFile(file, fileData, optimisedBranch, fileUrl);
-                commentBody += "\n\n";
-            }
-            
-            additionalComments = '## Overall PR stats:\n\n';
-            additionalComments += "| Old Score | New Score | Old Rating | New Rating |\n";
-            additionalComments += "|-----------|-----------|------------|------------|\n";
-            additionalComments += `| ${old_pr_score} | ${new_pr_score}  | ${old_pr_star_rating} | ${new_pr_star_rating} |\n\n`; // Added a newline here for a break between the table and the next header
-
-            additionalComments += '## Legend and explanation:\n\n';
-            additionalComments += 'GreenSense rates code based on:\n';
-            additionalComments += '- Time complexity\n';
-            additionalComments += '- Space complexity\n';
-            additionalComments += '- Cyclomatic complexity\n';
-            additionalComments += '___\n\n'; // Two new lines for a break between the content and the next table
-
-            additionalComments += 'The star ratings can be classified as:\n';
-            additionalComments += '| Star Rating       | Explanation |\n';
-            additionalComments += '|-------------------|-------------|\n';
-            additionalComments += '| ⭐⭐⭐⭐☆           | Excellent   |\n';
-            additionalComments += '| ⭐⭐⭐☆ and above   | Good        |\n';
-            additionalComments += '| ⭐⭐☆ and above    | Needs work  |\n';
-
-            commentBody += additionalComments
-            console.log(`comment body : \n ${commentBody}`)
-
-            // Check if a PR already exists for the branch
-            const existingPRs = await github.rest.pulls.list({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                head: `${context.repo.owner}:${optimisedBranch}`
-            });
-
-            let prNumber = null
-            // If no PRs found for the branch, create one
-            if (existingPRs.data.length === 0) {
-              // Create a PR
-              pr = await github.rest.pulls.create({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  title: `GreenSense optimisations for ${sourceBranch}`,
-                  head: optimisedBranch, // "optimised-testbranch"
-                  base: sourceBranch, // "testbranch"
-                  body: commentBody
-              });
-              console.log("pr",pr)
-              prNumber = pr.data.number
-            }
-            else {
-              prNumber = existingPRs.data[0].number;
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: prNumber,  // PRs are treated as issues in GitHub's API
-                body: commentBody
-              });
-            }
-          
-            core.exportVariable('prNumber', prNumber);
-
+                
+                let commentBody = "## GreenSense Report\n\n";
+    
+                for (const [file, fileData] of Object.entries(star_ratings)) {
+                    commentBody += generateTableForFile(file, fileData, optimisedBranch);
+                    commentBody += "\n\n";  // Add some space between tables
+                }
+                
+                additionalComments = '## Overall PR stats:\n\n';
+                additionalComments += "| Old Score | New Score | Old Rating | New Rating |\n";
+                additionalComments += "|-----------|-----------|------------|------------|\n";
+                additionalComments += `| ${old_pr_score} | ${new_pr_score}  | ${old_pr_star_rating} | ${new_pr_star_rating} |\n\n`; // Added a newline here for a break between the table and the next header
+    
+                additionalComments += '## Legend and explanation:\n\n';
+                additionalComments += 'GreenSense rates code based on:\n';
+                additionalComments += '- Time complexity\n';
+                additionalComments += '- Space complexity\n';
+                additionalComments += '- Cyclomatic complexity\n';
+                additionalComments += '___\n\n'; // Two new lines for a break between the content and the next table
+    
+                additionalComments += 'The star ratings can be classified as:\n';
+                additionalComments += '| Star Rating       | Explanation |\n';
+                additionalComments += '|-------------------|-------------|\n';
+                additionalComments += '| ⭐⭐⭐⭐★           | Excellent   |\n';
+                additionalComments += '| ⭐⭐⭐★ and above   | Good        |\n';
+                additionalComments += '| ⭐⭐★ and above    | Needs work  |\n';
+    
+                commentBody += additionalComments
+                console.log(`comment body : \n ${commentBody}`)
+    
+                // Check if a PR already exists for the branch
+                const existingPRs = await github.rest.pulls.list({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    head: `${context.repo.owner}:${optimisedBranch}`
+                });
+    
+                let prNumber = null
+                // If no PRs found for the branch, create one
+                if (existingPRs.data.length === 0) {
+                  // Create a PR
+                  pr = await github.rest.pulls.create({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      title: `GreenSense optimisations for ${sourceBranch}`,
+                      head: optimisedBranch, // "optimised-testbranch"
+                      base: sourceBranch, // "testbranch"
+                      body: commentBody
+                  });
+                  console.log("pr",pr)
+                  prNumber = pr.data.number
+                }
+                else {
+                  prNumber = existingPRs.data[0].number;
+                  await github.rest.issues.createComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: prNumber,  // PRs are treated as issues in GitHub's API
+                    body: commentBody
+                  });
+                }
+              
+                core.exportVariable('prNumber', prNumber);
+    
       # Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v2
