@@ -211,6 +211,66 @@ jobs:
             new_pr_star_rating=process.env.new_pr_star_rating
             
             console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
+            const owner = ${context.repo.owner}
+            const repo = ${context.repo.repo}
+            async function getBranchContent(file) {
+                return new Promise((resolve, reject) => {
+                const token = process.env.GITHUB_TOKEN;
+                const options = {
+                    hostname: 'api.github.com',
+                    path: `/repos/${owner}/${repo}/contents/file?ref=${optimisedBranch}`,
+                    method: 'GET',
+                    headers: {
+                        'User-Agent': 'NodeJS',
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3.raw'
+                    }
+                };
+
+                const req = https.request(options, res => {
+                    let responseBody = '';
+
+                    res.on('data', chunk => {
+                        responseBody += chunk;
+                    });
+
+                    res.on('end', () => {
+                        resolve(responseBody);
+                    });
+                });
+
+                req.on('error', error => {
+                    reject(error);
+                });
+
+                req.end();
+            });
+            }
+
+            async function getFunctionLineNumber(file) {
+                const branchContent = await getBranchContent(file);
+
+                const lines = branchContent.split('\n');
+                let currentOriginalLine = 1;
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+
+        
+                    const funcMatch = line.match(/function (\w+)\(/); // Modify this regex according to your function definition pattern
+                    if (funcMatch) {
+                        const funcName = funcMatch[1];
+                        if (funcName === functionName) {
+                            return currentOriginalLine;
+                        }
+                    }
+
+                    currentOriginalLine++;
+                }
+
+                return null; // Function not found in the branch content
+            }
+
 
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData) {
@@ -220,7 +280,7 @@ jobs:
             
                 for (const func of functionsData) {
                     for (const [funcName, scores] of Object.entries(func)) {
-                            
+                            const lineNumber = getFunctionLineNumber(${file});
                             table += `| ${funcName} | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
                     }
                 }
