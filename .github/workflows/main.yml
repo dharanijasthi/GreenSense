@@ -214,7 +214,8 @@ jobs:
 
                 async function getLineRange(owner, repo, branch, filename, functionName){
                         const filePath = `https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${filename}`;
-                        const content = $(cat "$filePath")
+                        const response = await fetch(filePath);
+                        const content = await response.text();
                         const lines = content.split('\n');
                         let startLine = -1;
 
