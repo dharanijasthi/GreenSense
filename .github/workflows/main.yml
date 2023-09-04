@@ -200,6 +200,10 @@ jobs:
             script: |
                 const sourceBranch = context.payload.pull_request.head.ref; 
                 const optimisedBranch = `Green-${sourceBranch}`;
+                const github = require('@actions/github');
+
+                const token = process.env.GITHUB_TOKEN;
+                const octokit = github.getOctokit(token);
     
                 console.log(`dict: ${process.env.star_ratings}`)
                 star_ratings=JSON.parse(process.env.star_ratings)
@@ -213,7 +217,7 @@ jobs:
                 console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
 
                 async function getLineRange(owner, repo, branch, filename, functionName){
-                        const response = await github.repos.getContents({
+                        const response = await octokit.repos.getContents({
                             owner,
                             repo,
                             path: filename,
