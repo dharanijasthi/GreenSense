@@ -200,7 +200,16 @@ jobs:
           script: |
             const sourceBranch = context.payload.pull_request.head.ref; 
             const optimisedBranch = `Green-${sourceBranch}`;
+            
+            let parsedDiff = {}; // Initialize an empty object
 
+            if (process.env.parsedDiff) {
+                try {
+                    parsedDiff = JSON.parse(process.env.parsedDiff);
+                } catch (error) {
+                    console.error("Error parsing parsedDiff:", error);
+                }
+            }
             console.log(`dict: ${process.env.star_ratings}`)
             star_ratings=JSON.parse(process.env.star_ratings)
             console.log('star ratings')
@@ -211,7 +220,6 @@ jobs:
             new_pr_star_rating=process.env.new_pr_star_rating
             
             console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
-            const parsedDiff = JSON.parse(process.env.parsedDiff);
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData, fileUrl, parsedDiff) {
                 console.log("parsed Diff", parsedDiff)
