@@ -194,13 +194,41 @@ jobs:
             pip install -r requirements.txt
             python .github/workflows/score.py
 
+    
+
+      - name: Retrieve Line Number
+        id: line-number
+        run: |
+              # Use GitHub API to fetch the file content and find the line number of the function
+              function_name="your_function_name"
+              file_path="path/to/your/file.js"
+              token=${{ secrets.GITHUB_TOKEN }}
+              
+              response=$(curl -H "Authorization: token $token" \
+                            -H "Accept: application/vnd.github.v3.raw" \
+                            -s \
+                            "https://api.github.com/repos/${{ github.repository }}/contents/$file_path")
+    
+              # Use a script (e.g., Python, Bash, or JavaScript) to parse the content and find the line number of the function
+              # For example, using Python:
+              # line_number=$(python script_to_find_line_number.py "$response" "$function_name")
+              
+              # Set the output variable
+              echo "::set-output name=line_number::${line_number}"
+    
+      - name: Use Line Number
+        run: |
+              # Access the retrieved line number in subsequent steps
+              line_number=${{ steps.line-number.outputs.line_number }}
+              echo "The line number of the function is $line_number"
+
       - name: Create PR
         uses: actions/github-script@v5
         with:
             script: |
                 const sourceBranch = context.payload.pull_request.head.ref; 
                 const optimisedBranch = `Green-${sourceBranch}`;
-                const fetch = require('node-fetch');
+                
                 console.log(`dict: ${process.env.star_ratings}`)
                 star_ratings=JSON.parse(process.env.star_ratings)
                 console.log('star ratings')
@@ -211,26 +239,6 @@ jobs:
                 new_pr_star_rating=process.env.new_pr_star_rating
                 
                 console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
-
-                async function getLineRange(owner, repo, branch, filename, functionName){
-                        const filePath = `https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${filename}`;
-                        const response = await fetch(filePath);
-                        const content = await response.text();
-                        const lines = content.split('\n');
-                        let startLine = -1;
-
-                        for (let i = 0; i < lines.length; i++) {
-                            if (lines[i].includes(`def ${functionName}(`)) {
-                                startLine = i + 1; // Line numbers are 1-based
-                                break;
-                            }
-                        }
-
-                        const githubLink = `https://github.com/${owner}/${repo}/blob/${branch}/${filename}#L${startLine}`;
-    
-                        return githubLink
-                    
-                }
 
                 // Function to generate the markdown table for a single file
                 function generateTableForFile(file, functionsData, fileUrl) {
@@ -245,9 +253,14 @@ jobs:
                     for (const func of functionsData) {
                         for (const [funcName, scores] of Object.entries(func)) {
                             fnName = funcName+'.py'
-                            const lineLink = getLineRange(owner, repo, branch, filename, fnName)
-                            console.log("lineLink",lineLink)
-                            table += `| [${funcName}](${lineLink}) | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
+                            token=${{ secrets.GITHUB_TOKEN }}
+              
+                            response=$(curl -H "Authorization: token $token" \
+                            -H "Accept: application/vnd.github.v3.raw" \
+                            -s \
+                            "https://api.github.com/repos/${{ github.repository }}/contents/${file}")
+                            console.log("response",response)
+                            table += `| [${funcName}] | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
                         }
                     }
                     return table;
