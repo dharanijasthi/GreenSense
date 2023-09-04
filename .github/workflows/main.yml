@@ -212,9 +212,8 @@ jobs:
                 
                 console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
 
-                async function getLineRange(owner, repo, branch, filename, functionName) {
-                    try {
-                        const response = await octokit.repos.getContents({
+                async function getLineRange(owner, repo, branch, filename, functionName){
+                        const response = await github.repos.getContents({
                             owner,
                             repo,
                             path: filename,
@@ -244,10 +243,8 @@ jobs:
 
                         const githubLink = `https://github.com/${owner}/${repo}/blob/${branch}/${filename}#L${startLine}C1-L${endLine}C1`;
     
-                        return `${githubLink}`
-                    } catch (error) {
-                        return `Error: ${error.message}`;
-                    }
+                        return githubLink
+                    
                 }
 
                 // Function to generate the markdown table for a single file
@@ -257,8 +254,8 @@ jobs:
                     table += "|----------|-----------|-----------|------------|------------|\n";
                     const owner = context.repo.owner;
                     const repo = context.repo.repo;
-                    const branch = ${optimisedBranch};
-                    const filename = ${file};
+                    const branch = optimisedBranch;
+                    const filename = file;
 
                     for (const func of functionsData) {
                         for (const [funcName, scores] of Object.entries(func)) {
