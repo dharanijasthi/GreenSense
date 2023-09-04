@@ -200,10 +200,10 @@ jobs:
             script: |
                 const sourceBranch = context.payload.pull_request.head.ref; 
                 const optimisedBranch = `Green-${sourceBranch}`;
-                const github = require('@actions/github');
+                const github1 = require('@actions/github');
 
                 const token = process.env.GITHUB_TOKEN;
-                const octokit = github.getOctokit(token);
+                const octokit = github1.getOctokit(token);
     
                 console.log(`dict: ${process.env.star_ratings}`)
                 star_ratings=JSON.parse(process.env.star_ratings)
