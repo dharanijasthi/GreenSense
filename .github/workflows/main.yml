@@ -215,7 +215,7 @@ jobs:
             
 
             // Function to get the line number of a function in a file
-                function getLineNumber(owner, repo, branch, filename, functionName) {
+                async function getLineNumber(owner, repo, branch, filename, functionName) {
                     // Get the content of the file from the specified branch
                     const response = await github.repos.getContents({
                         owner,
