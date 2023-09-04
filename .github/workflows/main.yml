@@ -211,17 +211,60 @@ jobs:
                 new_pr_star_rating=process.env.new_pr_star_rating
                 
                 console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
+
+                async function getLineRange(owner, repo, branch, filename, functionName) {
+                    try {
+                        const response = await octokit.repos.getContents({
+                            owner,
+                            repo,
+                            path: filename,
+                            ref: branch,
+                        });
+
     
+                        const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
+
+    
+                        const lines = content.split('\n');
+                        let startLine = -1;
+                        let endLine = -1;
+
+                        for (let i = 0; i < lines.length; i++) {
+                            if (lines[i].includes(`def ${functionName}(`)) {
+                                startLine = i + 1; // Line numbers are 1-based
+                                break;
+                            }
+                        }
+
+                        if (startLine === -1) {
+                            return `Function '${functionName}' not found in the file.`;
+                        }
+
+                        endLine = startLine + 1;
+
+                        const githubLink = `https://github.com/${owner}/${repo}/blob/${branch}/${filename}#L${startLine}C1-L${endLine}C1`;
+    
+                        return `${githubLink}`
+                    } catch (error) {
+                        return `Error: ${error.message}`;
+                    }
+                }
+
                 // Function to generate the markdown table for a single file
                 function generateTableForFile(file, functionsData, fileUrl) {
                     let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
                     table += "| Function | Old Score | New Score | Old Rating | New Rating |\n";
                     table += "|----------|-----------|-----------|------------|------------|\n";
-                
+                    const owner = context.repo.owner;
+                    const repo = context.repo.repo;
+                    const branch = ${optimisedBranch};
+                    const filename = ${file};
+
                     for (const func of functionsData) {
                         for (const [funcName, scores] of Object.entries(func)) {
-                            lineNumber = 4
-                            const lineLink = `https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}#L20-L20`;
+                            fnName = funcName+'.py'
+                            const lineLink = getLineRange(owner, repo, branch, filename, fnName)
+                            console.log("lineLink",lineLink)
                             table += `| [${funcName}](${lineLink}) | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
                         }
                     }
