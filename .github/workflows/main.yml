@@ -201,16 +201,6 @@ jobs:
             const sourceBranch = context.payload.pull_request.head.ref; 
             const optimisedBranch = `Green-${sourceBranch}`;
             
-            let parsedDiff = {}; // Initialize an empty object
-
-            if (process.env.parsedDiff) {
-                try {
-                    parsedDiff = JSON.parse(process.env.parsedDiff);
-                    console.log("parsedDiff",parsedDiff)
-                } catch (error) {
-                    console.error("Error parsing parsedDiff:", error);
-                }
-            }
             console.log(`dict: ${process.env.star_ratings}`)
             star_ratings=JSON.parse(process.env.star_ratings)
             console.log('star ratings')
@@ -223,8 +213,7 @@ jobs:
             console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
             // Function to generate the markdown table for a single file
 
-            function generateTableForFile(file, functionsData, fileUrl, parsedDiff) {
-                console.log("parsed Diff", parsedDiff)
+            function generateTableForFile(file, functionsData, fileUrl) {
                 let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
                 table += "| Function | Old Score | New Score | Old Rating | New Rating |\n";
                 table += "|----------|-----------|-----------|------------|------------|\n";
@@ -232,10 +221,9 @@ jobs:
                 console.log("functionsData",functionsData)
                 for (const func of functionsData) {
                     for (const [funcName, scores] of Object.entries(func)) {
-                        console.log("scores",scores)
-                        const functionLink = `${fileUrl}#L${parsedDiff[file][funcName]}`; // Generate the link using line number
-                        table += `| [${funcName}](${functionLink}) | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
-                    }
+                        const funcLink = `${fileUrl}/#${encodeURIComponent(funcName)}`; // Generate the link to the function
+                        table += `| [${funcName}](${funcLink}) | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
+                }
                 }
                 return table;
             }
@@ -244,7 +232,7 @@ jobs:
 
             for (const [file, fileData] of Object.entries(star_ratings)) {
                 const fileUrl = `https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}`;
-                commentBody += generateTableForFile(file, fileData, optimisedBranch, fileUrl, parsedDiff);
+                commentBody += generateTableForFile(file, fileData, optimisedBranch, fileUrl);
                 commentBody += "\n\n";
             }
             
@@ -420,5 +408,3 @@ jobs:
                 event: "COMMENT",  
                 comments: comments
             });
-            
-            core.exportVariable('parsedDiff', JSON.stringify(parsedDiff));
