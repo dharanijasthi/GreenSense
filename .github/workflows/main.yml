@@ -247,7 +247,7 @@ jobs:
             });
             }
 
-            async function getFunctionLineNumber(file) {
+            async function getFunctionLineNumber(file, functionName) {
                 const branchContent = await getBranchContent(file);
 
                 const lines = branchContent.split('\n');
@@ -280,7 +280,7 @@ jobs:
             
                 for (const func of functionsData) {
                     for (const [funcName, scores] of Object.entries(func)) {
-                            const lineNumber = getFunctionLineNumber(${file});
+                            const lineNumber = getFunctionLineNumber(${file}, funcName);
                             console.log("lineno",lineNumber)
                             const lineLink = `https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}#L${lineNumber}`;
                             console.log("linelink",lineLink)
