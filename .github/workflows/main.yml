@@ -272,7 +272,7 @@ jobs:
             }
 
             async function extractFunctionInfoFromFiles() {
-                for (const file of changedFiles) {
+                for (const file of ${changedFiles}) {
                     const fileContent = await getFileContent(file); // Function to fetch file content
                     console.log("fileContent",fileContent)
                     const functionInfo = extractFunctionNamesAndStartLines(fileContent);
