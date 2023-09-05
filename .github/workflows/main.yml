@@ -160,6 +160,7 @@ jobs:
         run: |
             # Extract the source branch name
             SOURCE_BRANCH=$GITHUB_HEAD_REF
+            const sourceBranch = context.payload.pull_request.head.ref; 
             NEW_BRANCH="Green-$SOURCE_BRANCH"
 
             # Create and switch to the new branch
@@ -172,8 +173,8 @@ jobs:
             # Add and commit changes
             git add -A
             git commit -m "Replaced old code with new code from API" || echo "No changes to commit"
-            
-            changed_files=$(git diff --name-only ${SOURCE_BRANCH} ${NEW_BRANCH})
+            console.log(`sourceBranch`,`NEW_BRANCH`)
+            changed_files=$(git diff --name-only ${sourceBranch} ${NEW_BRANCH})
 
             for file in $changed_files; do
                 # Use grep and awk to extract function names and their starting line numbers
