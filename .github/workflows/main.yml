@@ -161,6 +161,7 @@ jobs:
             # Extract the source branch name
             SOURCE_BRANCH=$GITHUB_HEAD_REF
             NEW_BRANCH="Green-$SOURCE_BRANCH"
+
             # Create and switch to the new branch
             git checkout -b $NEW_BRANCH
 
@@ -172,6 +173,7 @@ jobs:
             git add -A
             git commit -m "Replaced old code with new code from API" || echo "No changes to commit"
 
+            # Use GITHUB_TOKEN for authentication
             git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
 
             # Push changes
@@ -191,15 +193,7 @@ jobs:
         run: |
             pip install -r requirements.txt
             python .github/workflows/score.py
-            
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-            node-version: '14'
 
-      - name: Install dependencies
-        run: npm install
-    
       - name: Create PR
         uses: actions/github-script@v5
         with:
@@ -216,6 +210,8 @@ jobs:
             old_pr_star_rating=process.env.old_pr_star_rating
             new_pr_star_rating=process.env.new_pr_star_rating
             
+            console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
+
             changed_files=$(git diff --name-only ${sourceBranch} ${optimisedBranch})
 
             for file in $changed_files; do
@@ -224,8 +220,7 @@ jobs:
                 echo "Function info in $file:"
                 echo "$function_info"
             done
-
-            console.log("2nd function")
+            
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData) {
                 let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
@@ -234,11 +229,7 @@ jobs:
             
                 for (const func of functionsData) {
                     for (const [funcName, scores] of Object.entries(func)) {
-                            const lineNumber = getFunctionLineNumber(`${file}`, funcName);
-                            console.log("lineno",lineNumber)
-                            const lineLink = `https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}#L${lineNumber}`;
-                            console.log("linelink",lineLink)
-                            table += `| ${funcName}(${lineLink}) | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
+                        table += `| ${funcName} | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
                     }
                 }
                 return table;
@@ -306,6 +297,12 @@ jobs:
             }
           
             core.exportVariable('prNumber', prNumber);
+
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'  # You can specify a Node.js version of your choice
 
       # Install parse-diff
       - name: Install parse-diff
