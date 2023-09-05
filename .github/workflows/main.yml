@@ -261,8 +261,6 @@ jobs:
                     const fileContent = await getFileContent(file); // Function to fetch file content
                     console.log("fileContent",fileContent)
                     const functionInfo = extractFunctionNamesAndStartLines(fileContent);
-                    console.log(`File: ${file}`);
-                    console.log(functionInfo);
                 }
             }
 
@@ -278,7 +276,6 @@ jobs:
                     const lineNumbers = extractFunctionInfoFromFiles(changedFiles);
                     let commentBody = "## GreenSense Report\n\n";
                     for (const [file, fileData] of Object.entries(star_ratings)) {
-                        console.log("commentBody",commentBody)
                         commentBody += generateTableForFile(file, fileData, optimisedBranch, lineNumbers);
                         commentBody += "\n\n";  // Add some space between tables
                     }
@@ -298,6 +295,7 @@ jobs:
                 for (const func of functionsData) {
                     for (const [funcName, scores] of Object.entries(func)) {
                         for(const fnName of lineNumbers){
+                            console.log("lineNumbers",lineNumbers)
                             console.log("fnName",fnName)
                             if(lineNumbers[fnName]['name'] == funcName){
                                 table += `| ${funcName}(https://github.com/dharanijasthi/GreenSense/blob/${optimisedBranch}/lineNumbers[fnName]['name'].py#LlineNumbers[fnName]['startLine']) | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
