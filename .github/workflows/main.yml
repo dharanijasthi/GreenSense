@@ -271,8 +271,8 @@ jobs:
                 }
             }
 
-            async function extractFunctionInfoFromFiles() {
-                for (const file of ${changedFiles}) {
+            async function extractFunctionInfoFromFiles(changedFiles) {
+                for (const file of changedFiles) {
                     const fileContent = await getFileContent(file); // Function to fetch file content
                     console.log("fileContent",fileContent)
                     const functionInfo = extractFunctionNamesAndStartLines(fileContent);
@@ -281,7 +281,7 @@ jobs:
                 }
             }
 
-            extractFunctionInfoFromFiles();
+            extractFunctionInfoFromFiles(changedFiles);
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData) {
                 let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
