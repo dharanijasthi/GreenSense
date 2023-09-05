@@ -231,7 +231,7 @@ jobs:
                     const funcName = funcDef.match(/(\w+)\s*\(/)[1];
                     functionInfo.push({ name: funcName, startLine: lineNum });
                 }
-
+                print("functionInfo",functionInfo)
                 return functionInfo;
             }
 
@@ -259,7 +259,6 @@ jobs:
             async function extractFunctionInfoFromFiles(changedFiles) {
                 for (const file of changedFiles) {
                     const fileContent = await getFileContent(file); // Function to fetch file content
-                    console.log("fileContent",fileContent)
                     const functionInfo = extractFunctionNamesAndStartLines(fileContent);
                 }
             }
@@ -271,9 +270,9 @@ jobs:
                 try {
                     const response = await axios.get(retrieveChangedFilesapiUrl);
                     const changedFiles = response.data.files.map((file) => file.filename);
-                    console.log('Changed Files:');
-                    console.log(changedFiles);
+                    console.log('Changed Files:',changedFiles);
                     const lineNumbers = extractFunctionInfoFromFiles(changedFiles);
+                    console.log("lineNumbers", lineNumbers)
                     let commentBody = "## GreenSense Report\n\n";
                     for (const [file, fileData] of Object.entries(star_ratings)) {
                         commentBody += generateTableForFile(file, fileData, optimisedBranch, lineNumbers);
