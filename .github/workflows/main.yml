@@ -172,12 +172,6 @@ jobs:
             # Add and commit changes
             git add -A
             git commit -m "Replaced old code with new code from API" || echo "No changes to commit"
-
-            # Use GITHUB_TOKEN for authentication
-            git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-
-            # Push changes
-            git push --set-upstream origin $NEW_BRANCH || echo "No changes to push"
             
             changed_files=$(git diff --name-only ${SOURCE_BRANCH} ${NEW_BRANCH})
 
@@ -187,6 +181,11 @@ jobs:
                 echo "Function info in $file:"
                 echo "$function_info"
             done
+
+            git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+
+            # Push changes
+            git push --set-upstream origin $NEW_BRANCH || echo "No changes to push"
 
       - name: Python Setup
         uses: actions/setup-python@v4
