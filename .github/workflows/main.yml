@@ -257,7 +257,7 @@ jobs:
                     const line = lines[i];
 
         
-                    const funcMatch = line.match(/def (\w+)\(/); // Modify this regex according to your function definition pattern
+                    const funcMatch = line.match(/def (\w+)\(/);
                     if (funcMatch) {
                         const funcName = funcMatch[1];
                         if (funcName === functionName) {
@@ -268,7 +268,7 @@ jobs:
                     currentOriginalLine++;
                 }
 
-                return null; // Function not found in the branch content
+                return null;
             }
 
             console.log("2nd function")
