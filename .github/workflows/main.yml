@@ -160,7 +160,6 @@ jobs:
         run: |
             # Extract the source branch name
             SOURCE_BRANCH=$GITHUB_HEAD_REF
-            sourceBranch = $SOURCE_BRANCH
             NEW_BRANCH="Green-$SOURCE_BRANCH"
 
             # Create and switch to the new branch
