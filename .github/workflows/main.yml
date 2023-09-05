@@ -211,6 +211,58 @@ jobs:
             new_pr_star_rating=process.env.new_pr_star_rating
             
             console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
+            const originalPR = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                head: `${context.repo.owner}:${sourceBranch}`
+            });
+            prNo = originalPR.data.number
+            const files = await github.rest.pulls.listFiles({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNo
+            });
+
+            // Function to extract function starting line numbers from a file's content
+            function extractFunctionStartLines(fileContent) {
+                const functionStartLines = [];
+  
+                // Create a regular expression pattern to match the function definition
+                const pattern = new RegExp(`def\\s+${funcName}\\s*\\(`);
+  
+                // Split the file content into lines
+                const lines = fileContent.split('\n');
+  
+                // Iterate through the lines and look for function definitions
+                for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {
+                    const line = lines[lineNumber];
+    
+                    // Check if the line matches the function definition pattern
+                    if (pattern.test(line)) {
+                        // If it's a match, add the current line number to the array
+                        functionStartLines.push(lineNumber + 1); // Line numbers are 1-based in most code editors
+                    }
+                }
+  
+                return functionStartLines;
+            }
+
+            // Iterate through the changed files and extract function starting line numbers
+            const functionStartLineNumbers = {};
+            for (const file of files.data) {
+                const fileContent = await github.rest.repos.getContent({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    path: file.filename,
+                    ref: optimisedBranch, // Assuming 'optimisedBranch' is already set in your workflow
+                });
+                const startLines = extractFunctionStartLines(fileContent.data.content);
+                console.log(startLines)
+                if (startLines.length > 0) {
+                    functionStartLineNumbers[file.filename] = startLines;
+                }
+            }
+
 
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData) {
