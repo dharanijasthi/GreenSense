@@ -276,6 +276,12 @@ jobs:
                     console.log('Changed Files:');
                     console.log(changedFiles);
                     const lineNumbers = extractFunctionInfoFromFiles(changedFiles);
+                    let commentBody = "## GreenSense Report\n\n";
+
+                    for (const [file, fileData] of Object.entries(star_ratings)) {
+                        commentBody += generateTableForFile(file, fileData, optimisedBranch, lineNumbers);
+                        commentBody += "\n\n";  // Add some space between tables
+                    }
                 } catch (error) {
                     console.error('Error:', error);
                 }
@@ -300,13 +306,6 @@ jobs:
                     }
                 }
                 return table;
-            }
-            
-            let commentBody = "## GreenSense Report\n\n";
-
-            for (const [file, fileData] of Object.entries(star_ratings)) {
-                commentBody += generateTableForFile(file, fileData, optimisedBranch, lineNumbers);
-                commentBody += "\n\n";  // Add some space between tables
             }
             
             additionalComments = '## Overall PR stats:\n\n';
