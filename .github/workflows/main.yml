@@ -212,8 +212,6 @@ jobs:
             
             console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
 
-            changed_files=$(git diff --name-only ${sourceBranch} ${optimisedBranch})
-            
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData) {
                 let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
