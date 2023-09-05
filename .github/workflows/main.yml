@@ -213,13 +213,6 @@ jobs:
             console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
 
             changed_files=$(git diff --name-only ${sourceBranch} ${optimisedBranch})
-
-            for file in $changed_files; do
-                # Use grep and awk to extract function names and their starting line numbers
-                function_info=$(grep -nE '^\s*def\s+\w+\s*\(' $file | awk -F ':' '{print $1 ":" $2}' | sed 's/:/ - Line:/')
-                echo "Function info in $file:"
-                echo "$function_info"
-            done
             
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData) {
