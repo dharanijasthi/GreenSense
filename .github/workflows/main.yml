@@ -211,8 +211,10 @@ jobs:
             new_pr_star_rating=process.env.new_pr_star_rating
             
             console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
-            const owner = context.repo.owner
-            const repo = context.repo.repo
+            const https = require('https');
+            
+            repoName=context.repo.repo
+            repoOwner=context.repo.owner
             async function getBranchContent(file) {
                 console.log("entered")
                 return new Promise((resolve, reject) => {
@@ -221,7 +223,7 @@ jobs:
                     const options = {
                         console.log("entered options")
                         hostname: 'api.github.com',
-                        path: `/repos/${owner}/${repo}/contents/file?ref=${optimisedBranch}`,
+                        path: `/repos/${repoOwner}/${repoName}/contents/file?ref=${optimisedBranch}`,
                         method: 'GET',
                         headers: {
                             'User-Agent': 'NodeJS',
