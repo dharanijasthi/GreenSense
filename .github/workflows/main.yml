@@ -218,7 +218,7 @@ jobs:
             const { data: files } = await github.rest.pulls.listFiles({
                 owner, repo, pull_number: number
             });
-
+            console.log('files',files)
             // Function to extract function starting line numbers from a file's content
             function extractFunctionStartLines(fileContent) {
                 const functionStartLines = [];
