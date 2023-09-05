@@ -281,7 +281,7 @@ jobs:
                 }
             }
 
-            extractFunctionInfoFromFiles(changedFiles);
+            extractFunctionInfoFromFiles(${changedFiles});
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData) {
                 let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
