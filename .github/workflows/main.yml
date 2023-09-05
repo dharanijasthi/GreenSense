@@ -210,13 +210,12 @@ jobs:
             old_pr_star_rating=process.env.old_pr_star_rating
             new_pr_star_rating=process.env.new_pr_star_rating
             
-            console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
             repoName=context['repo']['repo']
             repoOwner=context['repo']['owner']
             async function getBranchContent(file) {
                 console.log("entered")
                 return new Promise((resolve, reject) => {
-                    console.log("entered proise")
+                    console.log("entered promise")
                     const token = process.env.GITHUB_TOKEN;
                     const options = {
                         console.log("entered options")
