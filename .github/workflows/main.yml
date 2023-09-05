@@ -277,8 +277,8 @@ jobs:
                     console.log(changedFiles);
                     const lineNumbers = extractFunctionInfoFromFiles(changedFiles);
                     let commentBody = "## GreenSense Report\n\n";
-
                     for (const [file, fileData] of Object.entries(star_ratings)) {
+                        console.log("commentBody",commentBody)
                         commentBody += generateTableForFile(file, fileData, optimisedBranch, lineNumbers);
                         commentBody += "\n\n";  // Add some space between tables
                     }
