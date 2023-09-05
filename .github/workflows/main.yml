@@ -227,25 +227,24 @@ jobs:
             function extractFunctionStartLines(fileContent) {
                 const functionStartLines = [];
   
-                // Create a regular expression pattern to match the function definition
-                const pattern = new RegExp(`def\\s+${funcName}\\s*\\(`);
-  
                 // Split the file content into lines
                 const lines = fileContent.split('\n');
   
-                // Iterate through the lines and look for function definitions
-                for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {
-                    const line = lines[lineNumber];
-    
-                    // Check if the line matches the function definition pattern
-                    if (pattern.test(line)) {
-                        // If it's a match, add the current line number to the array
-                        functionStartLines.push(lineNumber + 1); // Line numbers are 1-based in most code editors
+                // Regular expression pattern to match function definitions
+                const funcDefPattern = /def\s+(\w+)\s*\(/;
+
+                for (let i = 0; i < lines.length; i++) {
+                    const match = lines[i].match(funcDefPattern);
+                    if (match) {
+                        const funcName = match[1]; // Extract the function name
+                        const startLineNumber = i + 1; // Add 1 to convert from 0-based to 1-based line number
+                        functionStartLines.push({ funcName, startLineNumber });
                     }
                 }
-  
+
                 return functionStartLines;
             }
+
 
             // Iterate through the changed files and extract function starting line numbers
             const functionStartLineNumbers = {};
@@ -258,9 +257,6 @@ jobs:
                 });
                 const startLines = extractFunctionStartLines(fileContent.data.content);
                 console.log(startLines)
-                if (startLines.length > 0) {
-                    functionStartLineNumbers[file.filename] = startLines;
-                }
             }
 
 
