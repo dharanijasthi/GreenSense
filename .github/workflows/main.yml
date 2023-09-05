@@ -231,7 +231,7 @@ jobs:
                     const funcName = funcDef.match(/(\w+)\s*\(/)[1];
                     functionInfo.push({ name: funcName, startLine: lineNum });
                 }
-                print("functionInfo",functionInfo)
+                console.log("functionInfo",functionInfo)
                 return functionInfo;
             }
 
