@@ -7,7 +7,6 @@ def create_large_list():
 def factorial(n):
     return math.factorial(n)
 
-
 def give_output(n):
     if n <= 1:
         return n
