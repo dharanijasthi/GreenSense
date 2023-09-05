@@ -178,6 +178,15 @@ jobs:
 
             # Push changes
             git push --set-upstream origin $NEW_BRANCH || echo "No changes to push"
+        
+            changed_files=$(git diff --name-only $SOURCE_BRANCH $NEW_BRANCH)
+
+            for file in $changed_files; do
+                # Use grep and awk to extract function names and their starting line numbers
+                function_info=$(grep -nE '^\s*def\s+\w+\s*\(' $file | awk -F ':' '{print $1 ":" $2}' | sed 's/:/ - Line:/')
+                echo "Function info in $file:"
+                echo "$function_info"
+            done
 
       - name: Python Setup
         uses: actions/setup-python@v4
