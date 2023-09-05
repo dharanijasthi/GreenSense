@@ -211,16 +211,12 @@ jobs:
             new_pr_star_rating=process.env.new_pr_star_rating
             
             console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
-            const originalPR = await github.rest.pulls.list({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                head: `${context.repo.owner}:${sourceBranch}`
-            });
-            prNo = originalPR.data.number
-            const files = await github.rest.pulls.listFiles({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: prNo
+            const https = require('https');
+            const fs = require('fs');
+        
+            const { owner, repo, number } = context.issue;
+            const { data: files } = await github.rest.pulls.listFiles({
+                owner, repo, pull_number: number
             });
 
             // Function to extract function starting line numbers from a file's content
