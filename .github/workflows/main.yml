@@ -186,11 +186,6 @@ jobs:
             python-version: '3.9'
             # Optional - x64 or x86 architecture, defaults to x64
             architecture: 'x64'
-            
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-              node-version: '14'
                      
       - name: Calculating Star Rating
         env: 
@@ -198,7 +193,15 @@ jobs:
         run: |
             pip install -r requirements.txt
             python .github/workflows/score.py
+            
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+            node-version: '14'
 
+      - name: Install dependencies
+        run: npm install
+    
       - name: Create PR
         uses: actions/github-script@v5
         with:
@@ -359,9 +362,6 @@ jobs:
             }
           
             core.exportVariable('prNumber', prNumber);
-
-      # Setup Node.js
-  # You can specify a Node.js version of your choice
 
       # Install parse-diff
       - name: Install parse-diff
