@@ -159,9 +159,9 @@ jobs:
       - name: Commit and Push to New Branch
         run: |
             # Extract the source branch name
-            SOURCE_BRANCH=$(echo $GITHUB_REF | awk -F '/' '{print $3}')
+            SOURCE_BRANCH=$GITHUB_HEAD_REF
             NEW_BRANCH="Green-$SOURCE_BRANCH"
-
+            console.log(SOURCE_BRANCH, NEW_BRANCH)
             # Create and switch to the new branch
             git checkout -b $NEW_BRANCH
 
