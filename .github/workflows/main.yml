@@ -172,7 +172,6 @@ jobs:
             # Add and commit changes
             git add -A
             git commit -m "Replaced old code with new code from API" || echo "No changes to commit"
-            console.log(`SOURCE_BRANCH`,`NEW_BRANCH`)
             changed_files=$(git diff --name-only ${SOURCE_BRANCH} ${NEW_BRANCH})
 
             for file in $changed_files; do
