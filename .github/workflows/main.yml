@@ -220,7 +220,7 @@ jobs:
             const repo = context.repo.repo; // Replace with the repository name
             const baseBranch = sourceBranch; // Replace with the base branch name
             const headBranch = optimisedBranch; // Replace with the head branch name
-
+            
             function extractFunctionNamesAndStartLines(code) {
                 const functionDefs = code.match(/(def\s+\w+\s*\(.*\)|\w+\s*\(.*\)\s*{)/g) || [];
                 const functionInfo = [];
@@ -273,24 +273,20 @@ jobs:
                     console.log('Changed Files:',changedFiles);
                     const lineNumbers = extractFunctionInfoFromFiles(changedFiles);
                     console.log("lineNumbers", lineNumbers)
-                    let commentBody = "## GreenSense Report\n\n";
-                    for (const [file, fileData] of Object.entries(star_ratings)) {
-                        commentBody += generateTableForFile(file, fileData, optimisedBranch, lineNumbers);
-                        commentBody += "\n\n";  // Add some space between tables
-                    }
+                    return lineNumbers;
                 } catch (error) {
                     console.error('Error:', error);
                 }
             }
 
-            getChangedFiles();
+            const lineNumbers = await getChangedFiles();
 
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData, lineNumbers) {
                 let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
                 table += "| Function | Old Score | New Score | Old Rating | New Rating |\n";
                 table += "|----------|-----------|-----------|------------|------------|\n";
-            
+
                 for (const func of functionsData) {
                     for (const [funcName, scores] of Object.entries(func)) {
                         for(const fnName of lineNumbers){
@@ -303,6 +299,11 @@ jobs:
                     }
                 }
                 return table;
+            }
+            let commentBody = "## GreenSense Report\n\n";
+            for (const [file, fileData] of Object.entries(star_ratings)) {
+                commentBody += generateTableForFile(file, fileData, optimisedBranch, lineNumbers);
+                commentBody += "\n\n";  // Add some space between tables
             }
             
             additionalComments = '## Overall PR stats:\n\n';
