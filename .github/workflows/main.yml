@@ -211,11 +211,10 @@ jobs:
             new_pr_star_rating=process.env.new_pr_star_rating
             
             console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
-            const https = require('https');
-            
+            console.log('entering')
             repoName=context['repo']['repo']
             repoOwner=context['repo']['owner']
-            console.log("reponame",repoName,repoOwner)
+            console.log('reponame',`repoName`,`repoOwner`)
             async function getBranchContent(file) {
                 console.log("entered")
                 return new Promise((resolve, reject) => {
