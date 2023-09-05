@@ -290,7 +290,7 @@ jobs:
             
                 for (const func of functionsData) {
                     for (const [funcName, scores] of Object.entries(func)) {
-                            const lineNumber = getFunctionLineNumber(${file}, funcName);
+                            const lineNumber = getFunctionLineNumber(`${file}`, funcName);
                             console.log("lineno",lineNumber)
                             const lineLink = `https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}#L${lineNumber}`;
                             console.log("linelink",lineLink)
