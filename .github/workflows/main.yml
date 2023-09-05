@@ -161,8 +161,8 @@ jobs:
             # Extract the source branch name
             SOURCE_BRANCH=$GITHUB_HEAD_REF
             NEW_BRANCH="Green-$SOURCE_BRANCH"
-            console.log(${SOURCE_BRANCH})
-            console.log(${NEW_BRANCH})
+            echo "$SOURCE_BRANCH"
+            echo "$NEW_BRANCH"
             # Create and switch to the new branch
             git checkout -b $NEW_BRANCH
 
