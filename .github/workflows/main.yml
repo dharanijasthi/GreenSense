@@ -236,6 +236,52 @@ jobs:
 
             getChangedFiles();
 
+            function extractFunctionNamesAndStartLines(code) {
+                const functionDefs = code.match(/(def\s+\w+\s*\(.*\)|\w+\s*\(.*\)\s*{)/g) || [];
+                const functionInfo = [];
+
+                for (const funcDef of functionDefs) {
+                    const lines = code.split('\n');
+                    const lineNum = lines.findIndex(line => line.includes(funcDef)) + 1;
+                    const funcName = funcDef.match(/(\w+)\s*\(/)[1];
+                    functionInfo.push({ name: funcName, startLine: lineNum });
+                }
+
+                return functionInfo;
+            }
+
+            async function getFileContent(filePath) {
+                try {
+                    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+                    const response = await axios.get(apiUrl, {
+                        headers: {
+                            Authorization: `Bearer ${{ secrets.GITHUB_TOKEN }}`,
+                        },
+                    });
+
+                    if (response.data && response.data.content) {
+                        const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
+                        return content;
+                    } else {
+                        throw new Error(`Failed to fetch content for file: ${filePath}`);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    throw error;
+                }
+            }
+
+            async function extractFunctionInfoFromFiles() {
+                for (const file of changedFiles) {
+                    const fileContent = await getFileContent(file); // Function to fetch file content
+                    console.log("fileContent",fileContent)
+                    const functionInfo = extractFunctionNamesAndStartLines(fileContent);
+                    console.log(`File: ${file}`);
+                    console.log(functionInfo);
+                }
+            }
+
+            extractFunctionInfoFromFiles();
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData) {
                 let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
