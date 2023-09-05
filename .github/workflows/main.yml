@@ -221,21 +221,6 @@ jobs:
             const baseBranch = sourceBranch; // Replace with the base branch name
             const headBranch = optimisedBranch; // Replace with the head branch name
 
-            const apiUrl = `https://api.github.com/repos/${owner}/${repo}/compare/${baseBranch}...${headBranch}`;
-
-            async function getChangedFiles() {
-                try {
-                    const response = await axios.get(apiUrl);
-                    const changedFiles = response.data.files.map((file) => file.filename);
-                    console.log('Changed Files:');
-                    console.log(changedFiles);
-                } catch (error) {
-                    console.error('Error:', error);
-                }
-            }
-
-            getChangedFiles();
-
             function extractFunctionNamesAndStartLines(code) {
                 const functionDefs = code.match(/(def\s+\w+\s*\(.*\)|\w+\s*\(.*\)\s*{)/g) || [];
                 const functionInfo = [];
@@ -281,7 +266,23 @@ jobs:
                 }
             }
 
-            extractFunctionInfoFromFiles(${changedFiles});
+            const retrieveChangedFilesapiUrl = `https://api.github.com/repos/${owner}/${repo}/compare/${baseBranch}...${headBranch}`;
+
+
+            async function getChangedFiles() {
+                try {
+                    const response = await axios.get(retrieveChangedFilesapiUrl);
+                    const changedFiles = response.data.files.map((file) => file.filename);
+                    console.log('Changed Files:');
+                    console.log(changedFiles);
+                    extractFunctionInfoFromFiles(changedFiles);
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+
+            getChangedFiles();
+
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData) {
                 let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
