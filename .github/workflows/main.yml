@@ -258,7 +258,7 @@ jobs:
             async function extractFunctionInfoFromFiles(changedFiles) {
                 const functionInfo = [];
                 for (const file of changedFiles) {
-                    const lineNumbers1 = [];
+                    let lineNumbers1 = [];
                     const fileContent = await getFileContent(file); // Function to fetch file content
                     lineNumbers1 = extractFunctionNamesAndStartLines(fileContent,functionInfo);
                 }
