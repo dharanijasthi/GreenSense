@@ -221,7 +221,7 @@ jobs:
             const baseBranch = sourceBranch; // Replace with the base branch name
             const headBranch = optimisedBranch; // Replace with the head branch name
             
-            function extractFunctionNamesAndStartLines(code,functionInfo) {
+            function extractFunctionNamesAndStartLines(flename, code,functionInfo) {
                 console.log("code",code)
                 const functionDefs = code.match(/(def\s+\w+\s*\(.*\)|\w+\s*\(.*\)\s*{)/g) || [];
                 console.log("functionDefs",functionDefs)
@@ -229,7 +229,7 @@ jobs:
                     const lines = code.split('\n');
                     const lineNum = lines.findIndex(line => line.includes(funcDef)) + 1;
                     const funcName = funcDef.match(/(\w+)\s*\(/)[1];
-                    functionInfo.push({ name: funcName, startLine: lineNum });
+                    functionInfo.push({ name: funcName, startLine: lineNum ,fileName:flename});
                 }
                 console.log("functionInfo",functionInfo);
                 return functionInfo;
@@ -260,7 +260,7 @@ jobs:
                 const functionInfo = [];
                 for (const file of changedFiles) {
                     const fileContent = await getFileContent(file);
-                    extractFunctionNamesAndStartLines(fileContent, functionInfo);
+                    extractFunctionNamesAndStartLines(file, fileContent, functionInfo);
                 }
                 return functionInfo;
             }
@@ -294,7 +294,7 @@ jobs:
                         for(const fnName of changedFilesRes){
                             console.log("fnName",fnName)
                             if(fnName['name'] == funcName){
-                                table += `| [${funcName}](https://github.com/dharanijasthi/GreenSense/blob/${optimisedBranch}/${fnName['name']}.py#L${fnName['startLine']}) | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
+                                table += `| [${funcName}](https://github.com/dharanijasthi/GreenSense/blob/${optimisedBranch}/${fnName['fileName']}#L${fnName['startLine']}) | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
                             }
                         }
                     }
