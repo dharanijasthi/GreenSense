@@ -260,7 +260,7 @@ jobs:
                 for (const file of changedFiles) {
                     const lineNumbers1 = [];
                     const fileContent = await getFileContent(file); // Function to fetch file content
-                    lineNumbers1.push(extractFunctionNamesAndStartLines(fileContent,functionInfo));
+                    lineNumbers1 = extractFunctionNamesAndStartLines(fileContent,functionInfo);
                 }
                 console.log("lineNumbers",lineNumbers1)
                 return lineNumbers1
