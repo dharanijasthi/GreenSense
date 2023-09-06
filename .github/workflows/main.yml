@@ -262,7 +262,6 @@ jobs:
                     const fileContent = await getFileContent(file); // Function to fetch file content
                     lineNumbers1 = extractFunctionNamesAndStartLines(fileContent,functionInfo);
                 }
-                console.log("lineNumbers",lineNumbers1)
                 return lineNumbers1
             }
 
