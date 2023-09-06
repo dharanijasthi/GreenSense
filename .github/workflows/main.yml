@@ -283,7 +283,7 @@ jobs:
             const changedFilesRes = await getChangedFiles();
             console.log("changedFilesRes",changedFilesRes)
             // Function to generate the markdown table for a single file
-            function generateTableForFile(file, functionsData, lineNumbers) {
+            function generateTableForFile(file, functionsData) {
                 let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
                 table += "| Function | Old Score | New Score | Old Rating | New Rating |\n";
                 table += "|----------|-----------|-----------|------------|------------|\n";
@@ -302,7 +302,7 @@ jobs:
             }
             let commentBody = "## GreenSense Report\n\n";
             for (const [file, fileData] of Object.entries(star_ratings)) {
-                commentBody += generateTableForFile(file, fileData, optimisedBranch, lineNumbers);
+                commentBody += generateTableForFile(file, fileData, optimisedBranch);
                 commentBody += "\n\n";  // Add some space between tables
             }
             
