@@ -223,7 +223,6 @@ jobs:
             
             function extractFunctionNamesAndStartLines(code) {
                 const functionDefs = code.match(/(def\s+\w+\s*\(.*\)|\w+\s*\(.*\)\s*{)/g) || [];
-                const functionInfo = [];
 
                 for (const funcDef of functionDefs) {
                     const lines = code.split('\n');
@@ -257,9 +256,10 @@ jobs:
             }
 
             async function extractFunctionInfoFromFiles(changedFiles) {
+                const functionInfo = [];
                 for (const file of changedFiles) {
                     const fileContent = await getFileContent(file); // Function to fetch file content
-                    const functionInfo = extractFunctionNamesAndStartLines(fileContent);
+                    extractFunctionNamesAndStartLines(fileContent);
                 }
             }
 
@@ -289,8 +289,8 @@ jobs:
 
                 for (const func of functionsData) {
                     for (const [funcName, scores] of Object.entries(func)) {
+                        console.log("lineNumbers result",lineNumbers)
                         for(const fnName of lineNumbers){
-                            console.log("lineNumbers result",lineNumbers)
                             console.log("fnName",fnName)
                             if(lineNumbers[fnName]['name'] == funcName){
                                 table += `| ${funcName}(https://github.com/dharanijasthi/GreenSense/blob/${optimisedBranch}/lineNumbers[fnName]['name'].py#LlineNumbers[fnName]['startLine']) | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
