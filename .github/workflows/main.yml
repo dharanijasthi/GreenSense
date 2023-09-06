@@ -230,7 +230,7 @@ jobs:
                     const funcName = funcDef.match(/(\w+)\s*\(/)[1];
                     functionInfo.push({ name: funcName, startLine: lineNum });
                 }
-                console.log("functionInfo",functionInfo)
+                console.log("functionInfo",functionInfo);
                 return functionInfo;
             }
 
@@ -258,11 +258,9 @@ jobs:
             async function extractFunctionInfoFromFiles(changedFiles) {
                 const functionInfo = [];
                 for (const file of changedFiles) {
-                    let lineNumbers1 = [];
                     const fileContent = await getFileContent(file); // Function to fetch file content
-                    lineNumbers1 = extractFunctionNamesAndStartLines(fileContent,functionInfo);
+                    extractFunctionNamesAndStartLines(fileContent,functionInfo);
                 }
-                return lineNumbers1
             }
 
             const retrieveChangedFilesapiUrl = `https://api.github.com/repos/${owner}/${repo}/compare/${baseBranch}...${headBranch}`;
