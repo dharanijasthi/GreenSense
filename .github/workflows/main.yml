@@ -259,9 +259,9 @@ jobs:
                 const functionInfo = [];
                 for (const file of changedFiles) {
                     const fileContent = await getFileContent(file); // Function to fetch file content
-                    const lineNumbers = extractFunctionNamesAndStartLines(fileContent,functionInfo);
+                    const lineNumbers1 = extractFunctionNamesAndStartLines(fileContent,functionInfo);
                 }
-                return lineNumbers
+                return lineNumbers1
             }
 
             const retrieveChangedFilesapiUrl = `https://api.github.com/repos/${owner}/${repo}/compare/${baseBranch}...${headBranch}`;
