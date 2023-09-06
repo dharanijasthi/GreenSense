@@ -222,8 +222,9 @@ jobs:
             const headBranch = optimisedBranch; // Replace with the head branch name
             
             function extractFunctionNamesAndStartLines(code,functionInfo) {
+                console.log("code",code)
                 const functionDefs = code.match(/(def\s+\w+\s*\(.*\)|\w+\s*\(.*\)\s*{)/g) || [];
-
+                console.log("functionDefs",functionDefs)
                 for (const funcDef of functionDefs) {
                     const lines = code.split('\n');
                     const lineNum = lines.findIndex(line => line.includes(funcDef)) + 1;
