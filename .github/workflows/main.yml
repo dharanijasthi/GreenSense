@@ -258,9 +258,10 @@ jobs:
             async function extractFunctionInfoFromFiles(changedFiles) {
                 const functionInfo = [];
                 for (const file of changedFiles) {
-                    const fileContent = await getFileContent(file); // Function to fetch file content
-                    extractFunctionNamesAndStartLines(fileContent,functionInfo);
+                    const fileContent = await getFileContent(file);
+                    extractFunctionNamesAndStartLines(fileContent, functionInfo);
                 }
+                return functionInfo;
             }
 
             const retrieveChangedFilesapiUrl = `https://api.github.com/repos/${owner}/${repo}/compare/${baseBranch}...${headBranch}`;
@@ -271,8 +272,8 @@ jobs:
                     const response = await axios.get(retrieveChangedFilesapiUrl);
                     const changedFiles = response.data.files.map((file) => file.filename);
                     console.log('Changed Files:',changedFiles);
-                    const lineNumbers = extractFunctionInfoFromFiles(changedFiles);
-                    console.log("lineNumbers", lineNumbers)
+                    const lineNumbers = await extractFunctionInfoFromFiles(changedFiles);
+                    console.log("lineNumbers", lineNumbers);
                     return lineNumbers;
                 } catch (error) {
                     console.error('Error:', error);
