@@ -290,7 +290,6 @@ jobs:
 
                 for (const func of functionsData) {
                     for (const [funcName, scores] of Object.entries(func)) {
-                        console.log("lineNumbers result",lineNumbers)
                         for(const fnName of changedFilesRes){
                             console.log("fnName",fnName)
                             if(changedFilesRes[fnName]['name'] == funcName){
