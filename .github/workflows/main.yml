@@ -221,7 +221,7 @@ jobs:
             const baseBranch = sourceBranch; // Replace with the base branch name
             const headBranch = optimisedBranch; // Replace with the head branch name
             
-            function extractFunctionNamesAndStartLines(code) {
+            function extractFunctionNamesAndStartLines(code,functionInfo) {
                 const functionDefs = code.match(/(def\s+\w+\s*\(.*\)|\w+\s*\(.*\)\s*{)/g) || [];
 
                 for (const funcDef of functionDefs) {
@@ -259,8 +259,9 @@ jobs:
                 const functionInfo = [];
                 for (const file of changedFiles) {
                     const fileContent = await getFileContent(file); // Function to fetch file content
-                    extractFunctionNamesAndStartLines(fileContent);
+                    const lineNumbers = extractFunctionNamesAndStartLines(fileContent,functionInfo);
                 }
+                return lineNumbers
             }
 
             const retrieveChangedFilesapiUrl = `https://api.github.com/repos/${owner}/${repo}/compare/${baseBranch}...${headBranch}`;
