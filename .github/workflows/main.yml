@@ -284,7 +284,6 @@ jobs:
 
             const changedFilesRes = await getChangedFiles();
             console.log("changedFilesRes",changedFilesRes)
-            console.log("lineNumbers result",lineNumbers1)
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData, lineNumbers) {
                 let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
