@@ -465,7 +465,7 @@ jobs:
             console.log(`explanationsArray : ${explanationsArray}`)
 
             let comments = [];
-            console.log("explanationsArray",explanationsArray)
+
             explanationsArray.forEach(item => {
                 const filePath = item.path;
                 if (parsedDiff[filePath]) {
@@ -473,6 +473,7 @@ jobs:
                     const functionName = Object.keys(explanation)[0];
                     const message = explanation[functionName];
                     const position = parsedDiff[filePath][functionName];
+                    console.log("explanetion",explanation)
                     if (position !== undefined) {
                         comments.push({
                         path: filePath,
@@ -494,4 +495,3 @@ jobs:
                 event: "COMMENT",  
                 comments: comments
             });
-            
