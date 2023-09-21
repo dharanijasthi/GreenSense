@@ -193,6 +193,7 @@ jobs:
         run: |
             pip install -r requirements.txt
             python .github/workflows/score.py
+            npm install axios
 
       - name: Create PR
         uses: actions/github-script@v5
