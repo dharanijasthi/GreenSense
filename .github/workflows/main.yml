@@ -212,6 +212,74 @@ jobs:
             
             console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
 
+            const https = require('https');
+            const axios = require('axios'); // You may need to install the axios library
+
+            const owner = context.repo.owner; // Replace with the repository owner's username or organization name
+            const repo = context.repo.repo; // Replace with the repository name
+            const baseBranch = sourceBranch; // Replace with the base branch name
+            const headBranch = optimisedBranch; // Replace with the head branch name
+            
+            function extractFunctionNamesAndStartLines(flename, code,functionInfo) {
+                console.log("code",code)
+                const functionDefs = code.match(/(def\s+\w+\s*\(.*\)|\w+\s*\(.*\)\s*{)/g) || [];
+                console.log("functionDefs",functionDefs)
+                for (const funcDef of functionDefs) {
+                    const lines = code.split('\n');
+                    const lineNum = lines.findIndex(line => line.includes(funcDef)) + 1;
+                    const funcName = funcDef.match(/(\w+)\s*\(/)[1];
+                    functionInfo.push({ name: funcName, startLine: lineNum ,fileName:flename});
+                }
+                console.log("functionInfo",functionInfo);
+                return functionInfo;
+            }
+
+            async function getFileContent(filePath) {
+                try {
+                    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${optimisedBranch}`;
+                    const response = await axios.get(apiUrl, {
+                        headers: {
+                            Authorization: `Bearer ${{ secrets.GITHUB_TOKEN }}`,
+                        },
+                    });
+
+                    if (response.data && response.data.content) {
+                        const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
+                        return content;
+                    } else {
+                        throw new Error(`Failed to fetch content for file: ${filePath}`);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    throw error;
+                }
+            }
+            
+            async function extractFunctionInfoFromFiles(changedFiles) {
+                const functionInfo = [];
+                for (const file of changedFiles) {
+                    const fileContent = await getFileContent(file);
+                    extractFunctionNamesAndStartLines(file, fileContent, functionInfo);
+                }
+                return functionInfo;
+            }
+            const retrieveChangedFilesapiUrl = `https://api.github.com/repos/${owner}/${repo}/compare/${baseBranch}...${headBranch}`;
+
+            async function getChangedFiles() {
+                try {
+                    const response = await axios.get(retrieveChangedFilesapiUrl);
+                    const changedFiles = response.data.files.map((file) => file.filename);
+                    console.log('Changed Files:',changedFiles);
+                    const lineNumbers = await extractFunctionInfoFromFiles(changedFiles);
+                    console.log("lineNumbers", lineNumbers);
+                    return lineNumbers;
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+
+            const changedFilesRes = await getChangedFiles();
+
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData) {
                 let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
