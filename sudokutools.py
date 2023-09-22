@@ -1,15 +1,13 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
+import numpy as np
 from random import randint, shuffle
-
 
 def print_board(board):
     """
     Prints the sudoku board.
 
     Args:
-        board (list[list[int]]): A 9x9 sudoku board represented as a list of lists of integers.
+        board (np.ndarray): A 9x9 sudoku board represented as a numpy array.
 
     Returns:
         None.
@@ -35,16 +33,15 @@ def find_empty(board):
     Finds an empty cell in the sudoku board.
 
     Args:
-        board (list[list[int]]): A 9x9 sudoku board represented as a list of lists of integers.
+        board (np.ndarray): A 9x9 sudoku board represented as a numpy array.
 
     Returns:
         tuple[int, int]|None: The position of the first empty cell found as a tuple of row and column indices, or None if no empty cell is found.
     """
 
-    for i in range(9):
-        for j in range(9):
-            if board[i][j] == 0:
-                return (i, j)
+    empty_indices = np.where(board == 0)
+    if len(empty_indices[0]) > 0:
+        return (empty_indices[0][0], empty_indices[1][0])
     return None
 
 
@@ -53,7 +50,7 @@ def valid(board, pos, num):
     Checks whether a number is valid in a cell of the sudoku board.
 
     Args:
-        board (list[list[int]]): A 9x9 sudoku board represented as a list of lists of integers.
+        board (np.ndarray): A 9x9 sudoku board represented as a numpy array.
         pos (tuple[int, int]): The position of the cell to check as a tuple of row and column indices.
         num (int): The number to check.
 
@@ -61,20 +58,16 @@ def valid(board, pos, num):
         bool: True if the number is valid in the cell, False otherwise.
     """
 
-    for i in range(9):
-        if board[i][pos[1]] == num:
-            return False
+    if num in board[pos[0], :]:
+        return False
 
-    for j in range(9):
-        if board[pos[0]][j] == num:
-            return False
+    if num in board[:, pos[1]]:
+        return False
 
     start_i = pos[0] - pos[0] % 3
     start_j = pos[1] - pos[1] % 3
-    for i in range(3):
-        for j in range(3):
-            if board[start_i + i][start_j + j] == num:
-                return False
+    if num in board[start_i:start_i+3, start_j:start_j+3]:
+        return False
     return True
 
 
@@ -83,7 +76,7 @@ def solve(board):
     Solves the sudoku board using the backtracking algorithm.
 
     Args:
-        board (list[list[int]]): A 9x9 sudoku board represented as a list of lists of integers.
+        board (np.ndarray): A 9x9 sudoku board represented as a numpy array.
 
     Returns:
         bool: True if the sudoku board is solvable, False otherwise.
@@ -108,10 +101,10 @@ def generate_board():
     Generates a random sudoku board with fewer initial numbers.
 
     Returns:
-        list[list[int]]: A 9x9 sudoku board represented as a list of lists of integers.
+        np.ndarray: A 9x9 sudoku board represented as a numpy array.
     """
 
-    board = [[0 for i in range(9)] for j in range(9)]
+    board = np.zeros((9, 9), dtype=int)
 
     # Fill the diagonal boxes
     for i in range(0, 9, 3):
@@ -127,7 +120,7 @@ def generate_board():
         Fills the remaining cells of the sudoku board with backtracking.
 
         Args:
-            board (list[list[int]]): A 9x9 sudoku board represented as a list of lists of integers.
+            board (np.ndarray): A 9x9 sudoku board represented as a numpy array.
             row (int): The current row index to fill.
             col (int): The current column index to fill.
 
