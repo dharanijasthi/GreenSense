@@ -318,7 +318,7 @@ jobs:
                         for(const fnName of changedFilesRes){
                             console.log("fnName",fnName)
                             if(fnName['name'] == funcName){
-                                table += `| [${funcName}](https://github.com/${process.env.GITHUB_REPOSITORY}/blob/${optimisedBranch}/${fnName['fileName']}#L${fnName['startLine']}) | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
+                                table += `| [${funcName}](https://github.com/${process.env.GITHUB_REPOSITORY}/blob/${optimisedBranch}/${fnName['fileName']}#L${fnName['startLine']}) | ${scores.old_score} | ${scores.new_score} | ${replaceStarsWithImages(scores.old_star_rating)} | ${replaceStarsWithImages(scores.new_star_rating)} |\n`;
                             }
                         }
                     }
