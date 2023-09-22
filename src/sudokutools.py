@@ -1,8 +1,7 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
+import numpy as np
 from random import randint, shuffle
-
+from multiprocessing import Pool
 
 def print_board(board):
     """
@@ -111,7 +110,7 @@ def generate_board():
         list[list[int]]: A 9x9 sudoku board represented as a list of lists of integers.
     """
 
-    board = [[0 for i in range(9)] for j in range(9)]
+    board = np.zeros((9, 9), dtype=int)
 
     # Fill the diagonal boxes
     for i in range(0, 9, 3):
