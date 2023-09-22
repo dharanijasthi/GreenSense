@@ -141,5 +141,4 @@ def generate_board():
 if __name__ == "__main__":
     board = generate_board()
     print_board(board)
-    solve(board)
     print_board(board)
