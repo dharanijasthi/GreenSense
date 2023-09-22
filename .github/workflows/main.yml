@@ -210,6 +210,7 @@ jobs:
         run: |
             pip install -r requirements.txt
             python .github/workflows/score.py
+            npm install axios
 
       - name: Create PR
         uses: actions/github-script@v5
@@ -280,7 +281,7 @@ jobs:
                     throw error;
                 }
             }
-
+            
             async function extractFunctionInfoFromFiles(changedFiles) {
                 const functionInfo = [];
                 for (const file of changedFiles) {
@@ -289,9 +290,7 @@ jobs:
                 }
                 return functionInfo;
             }
-
             const retrieveChangedFilesapiUrl = `https://api.github.com/repos/${owner}/${repo}/compare/${baseBranch}...${headBranch}`;
-
 
             async function getChangedFiles() {
                 try {
@@ -304,8 +303,10 @@ jobs:
                 } catch (error) {
                     console.error('Error:', error);
                 }
+            }
+
             const changedFilesRes = await getChangedFiles();
-            console.log("changedFilesRes",changedFilesRes)
+
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData) {
                 let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
@@ -314,7 +315,12 @@ jobs:
             
                 for (const func of functionsData) {
                     for (const [funcName, scores] of Object.entries(func)) {
-                        table += `| ${funcName} | ${scores.old_score} | ${scores.new_score} | ${replaceStarsWithImages(scores.old_star_rating)} | ${replaceStarsWithImages(scores.new_star_rating)} |\n`;
+                        for(const fnName of changedFilesRes){
+                            console.log("fnName",fnName)
+                            if(fnName['name'] == funcName){
+                                table += `| [${funcName}](https://github.com/${process.env.GITHUB_REPOSITORY}/blob/${optimisedBranch}/${fnName['fileName']}#L${fnName['startLine']}) | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
+                            }
+                        }
                     }
                 }
                 return table;
@@ -492,6 +498,7 @@ jobs:
                     const functionName = Object.keys(explanation)[0];
                     const message = explanation[functionName];
                     const position = parsedDiff[filePath][functionName];
+                    console.log("explanetion",explanation)
                     if (position !== undefined) {
                         comments.push({
                         path: filePath,
@@ -513,4 +520,3 @@ jobs:
                 event: "COMMENT",  
                 comments: comments
             });
-            
