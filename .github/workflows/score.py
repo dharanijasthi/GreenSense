@@ -114,19 +114,13 @@ def get_score_for_code(fun):
 
     print("Getting Cyclomatic Complexity")
     cyclo_comp = get_cyclomitic_complexity(fun=fun)
-    print("cycle comp",cyclo_comp)
+
     for c in cyclo_comp:
-        print("c",c)
         name, comp = c.name, c.complexity
         resp[name]["cyclo_complexity"] = comp
 
     for res in resp:
-        print("res",res)
         code = resp[res]
-        print("code",code)
-        if code.get('cyclo_complexity') is None:
-            print("entered")
-            code['cyclo_complexity'] =1
         score = convert_complexity_to_number(
             code["time_complexity"])+convert_complexity_to_number(code["space_complexity"])+code["cyclo_complexity"]
         resp[res]["score"] = score
