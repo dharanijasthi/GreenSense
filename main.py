@@ -1,39 +1,34 @@
+
 def maxProfit(price, start, end):
-  
-    # If the stocks can't be bought
     if (end <= start):
         return 0
-  
-    # Initialise the profit
+
     profit = 0
-  
-    # The day at which the stock
-    # must be bought
-    for i in range(start, end, 1):
-  
-        # The day at which the
-        # stock must be sold
-        for j in range(i+1, end+1):
-  
-            # If buying the stock at ith day and
-            # selling it at jth day is profitable
-            if (price[j] > price[i]):
-  
-                # Update the current profit
-                curr_profit = price[j] - price[i] +\
-                    maxProfit(price, start, i - 1) + \
-                    maxProfit(price, j + 1, end)
-  
-                # Update the maximum profit so far
-                profit = max(profit, curr_profit)
-  
+    min_price = price[start]
+
+    for i in range(start+1, end+1):
+        if price[i] < min_price:
+            min_price = price[i]
+        else:
+            curr_profit = price[i] - min_price
+            profit = max(profit, curr_profit)
+
     return profit
 
 
 def longestCommonSubsequence_brute(text1, text2):
     if not text1 or not text2:
         return 0
-    if text1[-1] == text2[-1]:
-        return 1 + longestCommonSubsequence_brute(text1[:-1], text2[:-1])
-    else:
-        return max(longestCommonSubsequence_brute(text1[:-1], text2), longestCommonSubsequence_brute(text1, text2[:-1]))
+
+    m = len(text1)
+    n = len(text2)
+    dp = [[0] * (n+1) for _ in range(m+1)]
+
+    for i in range(1, m+1):
+        for j in range(1, n+1):
+            if text1[i-1] == text2[j-1]:
+                dp[i][j] = dp[i-1][j-1] + 1
+            else:
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+
+    return dp[m][n]
