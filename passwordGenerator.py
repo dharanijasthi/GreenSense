@@ -1,37 +1,39 @@
-"""Snake, classic arcade game.
+def maxProfit(price, start, end):
+  
+    # If the stocks can't be bought
+    if (end <= start):
+        return 0
+  
+    # Initialise the profit
+    profit = 0
+  
+    # The day at which the stock
+    # must be bought
+    for i in range(start, end, 1):
+  
+        # The day at which the
+        # stock must be sold
+        for j in range(i+1, end+1):
+  
+            # If buying the stock at ith day and
+            # selling it at jth day is profitable
+            if (price[j] > price[i]):
+  
+                # Update the current profit
+                curr_profit = price[j] - price[i] +\
+                    maxProfit(price, start, i - 1) + \
+                    maxProfit(price, j + 1, end)
+  
+                # Update the maximum profit so far
+                profit = max(profit, curr_profit)
+  
+    return profit
 
-Excercises
 
-1. How do you make the snake faster or slower?
-2. How can you make the snake go around the edges?
-3. How would you move the food?
-4. Change the snake to respond to arrow keys.
-
-"""
-
-from turtle import *
-from random import randrange
-from freegames import square, vector
-
-food = vector(0, 0)
-snake = [vector(10, 0)]
-aim = vector(0, -10)
-
-def change(x, y):
-    "Change snake direction."
-    aim.x = x
-    aim.y = y
-
-def inside(head):
-    "Return True if head inside boundaries."
-    return -200 < head.x < 190 and -200 < head.y < 190
-
-setup(420, 420, 370, 0)
-hideturtle()
-tracer(False)
-listen()
-onkey(lambda: change(10, 0), 'Right')
-onkey(lambda: change(-10, 0), 'Left')
-onkey(lambda: change(0, 10), 'Up')
-onkey(lambda: change(0, -10), 'Down')
-done()
+def longestCommonSubsequence_brute(text1, text2):
+    if not text1 or not text2:
+        return 0
+    if text1[-1] == text2[-1]:
+        return 1 + longestCommonSubsequence_brute(text1[:-1], text2[:-1])
+    else:
+        return max(longestCommonSubsequence_brute(text1[:-1], text2), longestCommonSubsequence_brute(text1, text2[:-1]))
