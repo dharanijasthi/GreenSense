@@ -46,7 +46,7 @@ jobs:
             const { owner, repo, number } = context.issue;
         
             const prompt = `
-            Your task is to optimize the provided code. Improve its speed and time complexity. Improve its algorithmic efficiency. Some optimizations may include dynamic programming, connection pooling, inbuilt functions, parallel processing. The response should strictly follow this structure:
+            Your task is to optimize the provided code. Improve its speed and time complexity. Improve its algorithmic efficiency. Some optimizations may include dynamic programming, connection pooling, inbuilt functions, parallel processing. Don't change the function names. Only update existing functions and don't create new functions. The response should strictly follow this structure:
 
             First, begin with the string [CODE_START], followed by the optimized code, and then [CODE_END]. After that, begin with [EXPLANATION_START]. For each function you've optimized, start the explanation with the function name followed by its description of optimization. Please make sure each function's explanation is on a new line. Do not include the time complexities of the original or optimized code in the explanation section. Conclude with [EXPLANATION_END].
             
