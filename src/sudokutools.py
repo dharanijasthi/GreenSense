@@ -77,32 +77,6 @@ def valid(board, pos, num):
                 return False
     return True
 
-
-def solve(board):
-    """
-    Solves the sudoku board using the backtracking algorithm.
-
-    Args:
-        board (list[list[int]]): A 9x9 sudoku board represented as a list of lists of integers.
-
-    Returns:
-        bool: True if the sudoku board is solvable, False otherwise.
-    """
-
-    empty = find_empty(board)
-    if not empty:
-        return True
-
-    for nums in range(1, 10):
-        if valid(board, empty, nums):
-            board[empty[0]][empty[1]] = nums
-
-            if solve(board):  # recursive step
-                return True
-            board[empty[0]][empty[1]] = 0  # this number is wrong so we set it back to 0
-    return False
-
-
 def generate_board():
     """
     Generates a random sudoku board with fewer initial numbers.
@@ -166,5 +140,4 @@ def generate_board():
 if __name__ == "__main__":
     board = generate_board()
     print_board(board)
-    solve(board)
     print_board(board)
