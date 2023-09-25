@@ -1,144 +1,66 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+"""Snake, classic arcade game.
 
-from random import randint, shuffle
+Excercises
 
+1. How do you make the snake faster or slower?
+2. How can you make the snake go around the edges?
+3. How would you move the food?
+4. Change the snake to respond to arrow keys.
 
-def print_board(board):
-    """
-    Prints the sudoku board.
+"""
 
-    Args:
-        board (list[list[int]]): A 9x9 sudoku board represented as a list of lists of integers.
+from turtle import *
+from random import randrange
+from freegames import square, vector
 
-    Returns:
-        None.
-    """
+food = vector(0, 0)
+snake = [vector(10, 0)]
+aim = vector(0, -10)
 
-    boardString = ""
-    for i in range(9):
-        for j in range(9):
-            boardString += str(board[i][j]) + " "
-            if (j + 1) % 3 == 0 and j != 0 and j + 1 != 9:
-                boardString += "| "
+def change(x, y):
+    "Change snake direction."
+    aim.x = x
+    aim.y = y
 
-            if j == 8:
-                boardString += "\n"
+def inside(head):
+    "Return True if head inside boundaries."
+    return -200 < head.x < 190 and -200 < head.y < 190
 
-            if j == 8 and (i + 1) % 3 == 0 and i + 1 != 9:
-                boardString += "- - - - - - - - - - - \n"
-    print(boardString)
+def move():
+    "Move snake forward one segment."
+    head = snake[-1].copy()
+    head.move(aim)
 
+    if not inside(head) or head in snake:
+        square(head.x, head.y, 9, 'red')
+        update()
+        return
 
-def find_empty(board):
-    """
-    Finds an empty cell in the sudoku board.
+    snake.append(head)
 
-    Args:
-        board (list[list[int]]): A 9x9 sudoku board represented as a list of lists of integers.
+    if head == food:
+        print('Snake:', len(snake))
+        food.x = randrange(-15, 15) * 10
+        food.y = randrange(-15, 15) * 10
+    else:
+        snake.pop(0)
 
-    Returns:
-        tuple[int, int]|None: The position of the first empty cell found as a tuple of row and column indices, or None if no empty cell is found.
-    """
+    clear()
 
-    for i in range(9):
-        for j in range(9):
-            if board[i][j] == 0:
-                return (i, j)
-    return None
+    for body in snake:
+        square(body.x, body.y, 9, 'black')
 
+    square(food.x, food.y, 9, 'green')
+    update()
+    ontimer(move, 100)
 
-def valid(board, pos, num):
-    """
-    Checks whether a number is valid in a cell of the sudoku board.
-
-    Args:
-        board (list[list[int]]): A 9x9 sudoku board represented as a list of lists of integers.
-        pos (tuple[int, int]): The position of the cell to check as a tuple of row and column indices.
-        num (int): The number to check.
-
-    Returns:
-        bool: True if the number is valid in the cell, False otherwise.
-    """
-
-    for i in range(9):
-        if board[i][pos[1]] == num:
-            return False
-
-    for j in range(9):
-        if board[pos[0]][j] == num:
-            return False
-
-    start_i = pos[0] - pos[0] % 3
-    start_j = pos[1] - pos[1] % 3
-    for i in range(3):
-        for j in range(3):
-            if board[start_i + i][start_j + j] == num:
-                return False
-    return True
-
-
-def generate_board():
-    """
-    Generates a random sudoku board with fewer initial numbers.
-
-    Returns:
-        list[list[int]]: A 9x9 sudoku board represented as a list of lists of integers.
-    """
-
-    board = [[0 for i in range(9)] for j in range(9)]
-
-    # Fill the diagonal boxes
-    for i in range(0, 9, 3):
-        nums = list(range(1, 10))
-        shuffle(nums)
-        for row in range(3):
-            for col in range(3):
-                board[i + row][i + col] = nums.pop()
-
-    # Fill the remaining cells with backtracking
-    def fill_cells(board, row, col):
-        """
-        Fills the remaining cells of the sudoku board with backtracking.
-
-        Args:
-            board (list[list[int]]): A 9x9 sudoku board represented as a list of lists of integers.
-            row (int): The current row index to fill.
-            col (int): The current column index to fill.
-
-        Returns:
-            bool: True if the remaining cells are successfully filled, False otherwise.
-        """
-
-        if row == 9:
-            return True
-        if col == 9:
-            return fill_cells(board, row + 1, 0)
-
-        if board[row][col] != 0:
-            return fill_cells(board, row, col + 1)
-
-        for num in range(1, 10):
-            if valid(board, (row, col), num):
-                board[row][col] = num
-
-                if fill_cells(board, row, col + 1):
-                    return True
-
-        board[row][col] = 0
-        return False
-
-    fill_cells(board, 0, 0)
-
-    # Remove a greater number of cells to create a puzzle with fewer initial numbers
-    for _ in range(randint(55, 65)):
-        row, col = randint(0, 8), randint(0, 8)
-        board[row][col] = 0
-
-    return board
-
-
-if __name__ == "__main__":
-    board = generate_board()
-    print_board(board)
-    print_board(board)
+setup(420, 420, 370, 0)
+hideturtle()
+tracer(False)
+listen()
+onkey(lambda: change(10, 0), 'Right')
+onkey(lambda: change(-10, 0), 'Left')
+onkey(lambda: change(0, 10), 'Up')
+onkey(lambda: change(0, -10), 'Down')
+move()
+done()
