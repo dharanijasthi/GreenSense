@@ -1,4 +1,6 @@
-"""Snake, classic arcade game.
+
+"""
+Snake, classic arcade game.
 
 Excercises
 
@@ -54,13 +56,20 @@ def move():
     update()
     ontimer(move, 100)
 
-setup(420, 420, 370, 0)
-hideturtle()
-tracer(False)
-listen()
-onkey(lambda: change(10, 0), 'Right')
-onkey(lambda: change(-10, 0), 'Left')
-onkey(lambda: change(0, 10), 'Up')
-onkey(lambda: change(0, -10), 'Down')
-move()
-done()
+def setup_game():
+    setup(420, 420, 370, 0)
+    hideturtle()
+    tracer(False)
+    listen()
+    onkey(lambda: change(10, 0), 'Right')
+    onkey(lambda: change(-10, 0), 'Left')
+    onkey(lambda: change(0, 10), 'Up')
+    onkey(lambda: change(0, -10), 'Down')
+
+def play_game():
+    move()
+    done()
+
+if __name__ == "__main__":
+    setup_game()
+    play_game()
