@@ -30,7 +30,6 @@ def maxProfit(price, start, end):
     return profit
 
 
-
 def longestCommonSubsequence_brute(text1, text2):
     if not text1 or not text2:
         return 0
