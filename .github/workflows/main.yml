@@ -16,23 +16,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      
-      - name: Install GitHub CLI
-        run: |
-            sudo apt-get update
-            sudo apt-get install -y gh
-
-      - name: Check and delete existing PR and branch
-        run: |
-            # Assuming source-branch is available as an environment variable or you can define it
-            PR_EXIST=$(gh pr list --base ${{ github.head_ref }} --head Green-${{ github.head_ref }} --json number -q '.[0].number')
-            if [ "$PR_EXIST" != "" ]; then
-                gh pr close $PR_EXIST
-                git push origin --delete Green-${{ github.head_ref }}
-            fi
-        env:
-            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Get Updated Code
         env: 
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} 
@@ -46,7 +29,7 @@ jobs:
             const { owner, repo, number } = context.issue;
         
             const prompt = `
-            Your task is to optimize the provided code. Improve its speed and time complexity. Improve its algorithmic efficiency. Some optimizations may include connection pooling, inbuilt functions, parallel processing. The response should strictly follow this structure:
+            Your task is to optimize the provided code. Improve its speed and time complexity. Improve its algorithmic efficiency. Some optimizations may include dynamic programming, connection pooling, inbuilt functions, parallel processing. The response should strictly follow this structure:
 
             First, begin with the string [CODE_START], followed by the optimized code, and then [CODE_END]. After that, begin with [EXPLANATION_START]. For each function you've optimized, start the explanation with the function name followed by its description of optimization. Please make sure each function's explanation is on a new line. Do not include the time complexities of the original or optimized code in the explanation section. Conclude with [EXPLANATION_END].
             
@@ -210,7 +193,6 @@ jobs:
         run: |
             pip install -r requirements.txt
             python .github/workflows/score.py
-            npm install axios
 
       - name: Create PR
         uses: actions/github-script@v5
@@ -229,98 +211,16 @@ jobs:
             new_pr_star_rating=process.env.new_pr_star_rating
             
             console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
-            
-            function replaceStarsWithImages(inputString, width = 16) {
-                const fullStarUrl = "https://raw.githubusercontent.com/NayakBot/GreenSense/main/.github/workflows/full_star.png";
-                const halfStarUrl = "https://raw.githubusercontent.com/NayakBot/GreenSense/main/.github/workflows/half_star.png";
-            
-                const fullStarImg = `<img src="${fullStarUrl}" alt="Full Star" width="${width}px" />`;
-                const halfStarImg = `<img src="${halfStarUrl}" alt="Half Star" width="${width}px" />`;
-            
-                return inputString.replace(/⭐/g, fullStarImg).replace(/★/g, halfStarImg);
-            }
-            const https = require('https');
-            const axios = require('axios'); // You may need to install the axios library
-
-            const owner = context.repo.owner; // Replace with the repository owner's username or organization name
-            const repo = context.repo.repo; // Replace with the repository name
-            const baseBranch = sourceBranch; // Replace with the base branch name
-            const headBranch = optimisedBranch; // Replace with the head branch name
-            
-            function extractFunctionNamesAndStartLines(flename, code,functionInfo) {
-                console.log("code",code)
-                const functionDefs = code.match(/(def\s+\w+\s*\(.*\)|\w+\s*\(.*\)\s*{)/g) || [];
-                console.log("functionDefs",functionDefs)
-                for (const funcDef of functionDefs) {
-                    const lines = code.split('\n');
-                    const lineNum = lines.findIndex(line => line.includes(funcDef)) + 1;
-                    const funcName = funcDef.match(/(\w+)\s*\(/)[1];
-                    functionInfo.push({ name: funcName, startLine: lineNum ,fileName:flename});
-                }
-                console.log("functionInfo",functionInfo);
-                return functionInfo;
-            }
-
-            async function getFileContent(filePath) {
-                try {
-                    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${optimisedBranch}`;
-                    const response = await axios.get(apiUrl, {
-                        headers: {
-                            Authorization: `Bearer ${{ secrets.GITHUB_TOKEN }}`,
-                        },
-                    });
-
-                    if (response.data && response.data.content) {
-                        const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
-                        return content;
-                    } else {
-                        throw new Error(`Failed to fetch content for file: ${filePath}`);
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    throw error;
-                }
-            }
-            
-            async function extractFunctionInfoFromFiles(changedFiles) {
-                const functionInfo = [];
-                for (const file of changedFiles) {
-                    const fileContent = await getFileContent(file);
-                    extractFunctionNamesAndStartLines(file, fileContent, functionInfo);
-                }
-                return functionInfo;
-            }
-            const retrieveChangedFilesapiUrl = `https://api.github.com/repos/${owner}/${repo}/compare/${baseBranch}...${headBranch}`;
-
-            async function getChangedFiles() {
-                try {
-                    const response = await axios.get(retrieveChangedFilesapiUrl);
-                    const changedFiles = response.data.files.map((file) => file.filename);
-                    console.log('Changed Files:',changedFiles);
-                    const lineNumbers = await extractFunctionInfoFromFiles(changedFiles);
-                    console.log("lineNumbers", lineNumbers);
-                    return lineNumbers;
-                } catch (error) {
-                    console.error('Error:', error);
-                }
-            }
-
-            const changedFilesRes = await getChangedFiles();
 
             // Function to generate the markdown table for a single file
             function generateTableForFile(file, functionsData) {
-                let table = `### [${file}](https://github.com/${process.env.GITHUB_REPOSITORY}/tree/${optimisedBranch}/${file}):\n\n`;
+                let table = `### ${file}:\n\n`;
                 table += "| Function | Old Score | New Score | Old Rating | New Rating |\n";
                 table += "|----------|-----------|-----------|------------|------------|\n";
             
                 for (const func of functionsData) {
                     for (const [funcName, scores] of Object.entries(func)) {
-                        for(const fnName of changedFilesRes){
-                            console.log("fnName",fnName)
-                            if(fnName['name'] == funcName){
-                                table += `| [${funcName}](https://github.com/${process.env.GITHUB_REPOSITORY}/blob/${optimisedBranch}/${fnName['fileName']}#L${fnName['startLine']}) | ${scores.old_score} | ${scores.new_score} | ${replaceStarsWithImages(scores.old_star_rating)} | ${replaceStarsWithImages(scores.new_star_rating)} |\n`;
-                            }
-                        }
+                        table += `| ${funcName} | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
                     }
                 }
                 return table;
@@ -336,21 +236,21 @@ jobs:
             additionalComments = '## Overall PR stats:\n\n';
             additionalComments += "| Old Score | New Score | Old Rating | New Rating |\n";
             additionalComments += "|-----------|-----------|------------|------------|\n";
-            additionalComments += `| ${old_pr_score} | ${new_pr_score}  | ${replaceStarsWithImages(old_pr_star_rating)} | ${replaceStarsWithImages(new_pr_star_rating)} |\n\n`; // Added a newline here for a break between the table and the next header
+            additionalComments += `| ${old_pr_score} | ${new_pr_score}  | ${old_pr_star_rating} | ${new_pr_star_rating} |\n\n`; // Added a newline here for a break between the table and the next header
 
             additionalComments += '## Legend and explanation:\n\n';
             additionalComments += 'GreenSense rates code based on:\n';
-            additionalComments += '- [Time complexity](https://en.wikipedia.org/wiki/Time_complexity)\n';
-            additionalComments += '- [Space complexity](https://en.wikipedia.org/wiki/Space_complexity)\n';
-            additionalComments += '- [Cyclomatic complexity](https://en.wikipedia.org/wiki/Cyclomatic_complexity)\n';
+            additionalComments += '- Time complexity\n';
+            additionalComments += '- Space complexity\n';
+            additionalComments += '- Cyclomatic complexity\n';
             additionalComments += '___\n\n'; // Two new lines for a break between the content and the next table
 
             additionalComments += 'The star ratings can be classified as:\n';
             additionalComments += '| Star Rating       | Explanation |\n';
             additionalComments += '|-------------------|-------------|\n';
-            additionalComments += `| ${replaceStarsWithImages("⭐⭐⭐⭐★")}           | Excellent   |\n`;
-            additionalComments += `| ${replaceStarsWithImages("⭐⭐⭐★")} and above   | Good        |\n`;
-            additionalComments += `| ${replaceStarsWithImages("⭐⭐★")} and above    | Needs work  |\n`;
+            additionalComments += '| ⭐⭐⭐⭐★           | Excellent   |\n';
+            additionalComments += '| ⭐⭐⭐★ and above   | Good        |\n';
+            additionalComments += '| ⭐⭐★ and above    | Needs work  |\n';
 
             commentBody += additionalComments
             console.log(`comment body : \n ${commentBody}`)
@@ -498,7 +398,6 @@ jobs:
                     const functionName = Object.keys(explanation)[0];
                     const message = explanation[functionName];
                     const position = parsedDiff[filePath][functionName];
-                    console.log("explanetion",explanation)
                     if (position !== undefined) {
                         comments.push({
                         path: filePath,
@@ -520,3 +419,4 @@ jobs:
                 event: "COMMENT",  
                 comments: comments
             });
+            
