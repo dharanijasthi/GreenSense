@@ -1,28 +1,29 @@
+
+import numpy as np
+
 def create_large_list():
-    large_list = []
-    for i in range(1000000):
-        large_list.append(i)
-    return large_list
+    large_list = np.arange(1000000)
+    return large_list.tolist()
 
 def factorial(n):
-    if n == 0:
-        return 1
-    else:
-        return n * factorial(n-1)
+    return np.math.factorial(n)
 
 def give_output(n):
     if n <= 1:
         return n
     else:
-        return give_output(n-1) + give_output(n-2)
-    
+        a, b = 0, 1
+        for _ in range(n-1):
+            a, b = b, a + b
+        return b
+
 def subArraySum(arr, n, sum):
-    for i in range(0,n):
+    for i in range(0, n):
         currentSum = arr[i]
-        if(currentSum == sum):
+        if currentSum == sum:
             return
         else:
-            for j in range(i+1,n):
+            for j in range(i+1, n):
                 currentSum += arr[j]
-                if(currentSum == sum):
+                if currentSum == sum:
                     return
