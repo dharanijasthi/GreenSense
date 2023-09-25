@@ -16,6 +16,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      
+      - name: Install GitHub CLI
+        run: |
+            sudo apt-get update
+            sudo apt-get install -y gh
+
+      - name: Check and delete existing PR and branch
+        run: |
+            # Assuming source-branch is available as an environment variable or you can define it
+            PR_EXIST=$(gh pr list --base ${{ github.head_ref }} --head Green-${{ github.head_ref }} --json number -q '.[0].number')
+            if [ "$PR_EXIST" != "" ]; then
+                gh pr close $PR_EXIST
+                git push origin --delete Green-${{ github.head_ref }}
+            fi
+        env:
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Get Updated Code
         env: 
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} 
@@ -212,7 +229,16 @@ jobs:
             new_pr_star_rating=process.env.new_pr_star_rating
             
             console.log(`old_pr_score, new_pr_score, old_pr_star_rating, new_pr_star_rating`)
-
+            
+            function replaceStarsWithImages(inputString, width = 16) {
+                const fullStarUrl = "https://raw.githubusercontent.com/NayakBot/GreenSense/main/.github/workflows/full_star.png";
+                const halfStarUrl = "https://raw.githubusercontent.com/NayakBot/GreenSense/main/.github/workflows/half_star.png";
+            
+                const fullStarImg = `<img src="${fullStarUrl}" alt="Full Star" width="${width}px" />`;
+                const halfStarImg = `<img src="${halfStarUrl}" alt="Half Star" width="${width}px" />`;
+            
+                return inputString.replace(/⭐/g, fullStarImg).replace(/★/g, halfStarImg);
+            }
             const https = require('https');
             const axios = require('axios'); // You may need to install the axios library
 
@@ -292,7 +318,7 @@ jobs:
                         for(const fnName of changedFilesRes){
                             console.log("fnName",fnName)
                             if(fnName['name'] == funcName){
-                                table += `| [${funcName}](https://github.com/${process.env.GITHUB_REPOSITORY}/blob/${optimisedBranch}/${fnName['fileName']}#L${fnName['startLine']}) | ${scores.old_score} | ${scores.new_score} | ${scores.old_star_rating} | ${scores.new_star_rating} |\n`;
+                                table += `| [${funcName}](https://github.com/${process.env.GITHUB_REPOSITORY}/blob/${optimisedBranch}/${fnName['fileName']}#L${fnName['startLine']}) | ${scores.old_score} | ${scores.new_score} | ${replaceStarsWithImages(scores.old_star_rating)} | ${replaceStarsWithImages(scores.new_star_rating)} |\n`;
                             }
                         }
                     }
@@ -303,28 +329,28 @@ jobs:
             let commentBody = "## GreenSense Report\n\n";
 
             for (const [file, fileData] of Object.entries(star_ratings)) {
-                commentBody += generateTableForFile(file, fileData, optimisedBranch);
+                commentBody += generateTableForFile(file, fileData);
                 commentBody += "\n\n";  // Add some space between tables
             }
             
             additionalComments = '## Overall PR stats:\n\n';
             additionalComments += "| Old Score | New Score | Old Rating | New Rating |\n";
             additionalComments += "|-----------|-----------|------------|------------|\n";
-            additionalComments += `| ${old_pr_score} | ${new_pr_score}  | ${old_pr_star_rating} | ${new_pr_star_rating} |\n\n`; // Added a newline here for a break between the table and the next header
+            additionalComments += `| ${old_pr_score} | ${new_pr_score}  | ${replaceStarsWithImages(old_pr_star_rating)} | ${replaceStarsWithImages(new_pr_star_rating)} |\n\n`; // Added a newline here for a break between the table and the next header
 
             additionalComments += '## Legend and explanation:\n\n';
             additionalComments += 'GreenSense rates code based on:\n';
-            additionalComments += '- Time complexity\n';
-            additionalComments += '- Space complexity\n';
-            additionalComments += '- Cyclomatic complexity\n';
+            additionalComments += '- [Time complexity](https://en.wikipedia.org/wiki/Time_complexity)\n';
+            additionalComments += '- [Space complexity](https://en.wikipedia.org/wiki/Space_complexity)\n';
+            additionalComments += '- [Cyclomatic complexity](https://en.wikipedia.org/wiki/Cyclomatic_complexity)\n';
             additionalComments += '___\n\n'; // Two new lines for a break between the content and the next table
 
             additionalComments += 'The star ratings can be classified as:\n';
             additionalComments += '| Star Rating       | Explanation |\n';
             additionalComments += '|-------------------|-------------|\n';
-            additionalComments += '| ⭐⭐⭐⭐★           | Excellent   |\n';
-            additionalComments += '| ⭐⭐⭐★ and above   | Good        |\n';
-            additionalComments += '| ⭐⭐★ and above    | Needs work  |\n';
+            additionalComments += `| ${replaceStarsWithImages("⭐⭐⭐⭐★")}           | Excellent   |\n`;
+            additionalComments += `| ${replaceStarsWithImages("⭐⭐⭐★")} and above   | Good        |\n`;
+            additionalComments += `| ${replaceStarsWithImages("⭐⭐★")} and above    | Needs work  |\n`;
 
             commentBody += additionalComments
             console.log(`comment body : \n ${commentBody}`)
@@ -348,7 +374,6 @@ jobs:
                   base: sourceBranch, // "testbranch"
                   body: commentBody
               });
-              console.log("pr",pr)
               prNumber = pr.data.number
             }
             else {
