@@ -1,5 +1,4 @@
 openai
 radon
 python-dotenv
-tiktoken
-pygame==2.0.1
+pygame
